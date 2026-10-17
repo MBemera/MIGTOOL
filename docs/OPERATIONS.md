@@ -54,7 +54,7 @@ Operation relies on two OneDrive (or SharePoint-synced) folders: the Bank 1 extr
 
 **Monitoring.** `/api/health` reports `strayFiles` across the load and landing folders: temp files, staging leftovers and conflict-copy names. Anything above 0 needs investigation.
 
-**What is still not supported.** Placing the database in OneDrive, or having several machines run the app against one synced copy of it. Sharing records across sites needs the Graph or backend storage route (DEC-01). Browser drafts stay in the tab's session storage and are never written to disk.
+**Sharing records across machines.** Use SharePoint record storage ([SharePoint](SHAREPOINT.md)): records are checked out and in through Microsoft Graph, and each server keeps its own local database. Never place a database in OneDrive or share one synced copy between machines. Browser drafts stay in the tab's session storage and are never written to disk.
 
 ## Containers
 

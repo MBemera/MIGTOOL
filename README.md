@@ -44,6 +44,7 @@ Every example customer requires human-supplied declaration evidence. Import neve
 - JSONata, JSONLogic and registered-function conditions; weighted scoring and deterministic gates.
 - Bank 1 CSV extract packages (customers, accounts, people, signatories and a control file of row counts and SHA-256 checksums) converted into records; file faults stop the batch.
 - Bank 2 CBS load files written atomically to a load folder, parsed back for reconciliation, and combined per batch with control totals.
+- SharePoint record storage for staff on several machines: records are checked out through Microsoft Graph on open, uploaded only if unchanged since check-out, and checked in on release, with leases that expire. See [SharePoint](docs/SHAREPOINT.md).
 - OneDrive-compatible extract landing and CBS load folders: extracts are only read and checked for open, half-synced or conflicting files; load files are staged locally and moved in complete, never overwritten, so OneDrive never sees temp files or makes conflict copies. The database stays on local disk.
 - Idempotent JSON extract ingestion, checksums, duplicate rejection, control totals, provenance and refresh merges.
 - Authoritative SQLite backend with atomic leases, server-time expiry, ETags and stale-write rejection.

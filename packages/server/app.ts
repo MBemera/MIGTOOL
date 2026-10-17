@@ -15,6 +15,7 @@ import { assertEditableData, leafValues } from '../core/mapping';
 import { migrate } from '../../migrations';
 import { MigrationService, worker } from '../worker/service';
 import { deliveryFor } from '../adapters/cbs';
+import { type SharePointAuthority, sharePointFromEnv } from '../adapters/sharepoint';
 import { landingPackages, readExtractPackage, strayFiles } from '../adapters/files';
 
 declare global {
@@ -49,6 +50,7 @@ export function createApp(
     startWorker?: boolean;
     cbsOutbox?: string;
     landing?: string;
+    authority?: SharePointAuthority;
   } = {},
 ) {
   const databasePath = options.databasePath ?? process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
@@ -63,7 +65,48 @@ export function createApp(
   const changed = () => {
     for (const response of clients) response.write('event: changed\ndata: {}\n\n');
   };
-  const service = new MigrationService(store, pack, changed, cbs);
+  // SharePoint is the record authority when configured; the database is then a working copy.
+  const authority = options.authority ?? sharePointFromEnv(pack);
+  const service = new MigrationService(store, pack, changed, cbs, authority);
+  const holder = (req: Request) => ({
+    id: req.user!.id,
+    name: req.user!.username,
+    kind: 'human' as const,
+  });
+  // Before a person's save: their SharePoint check-out must still be theirs.
+  const assertRemote = async (recordId: string) => {
+    const token = store.remote(recordId)?.token;
+    if (!authority) return;
+    if (!token)
+      throw new PlatformError('SHAREPOINT_LEASE_LOST', 'Reopen the record to check it out', 409);
+    await authority.assertHeld(recordId, token);
+  };
+  const migrateIfNeeded = (recordId: string) => {
+    const original = store.load(recordId);
+    const upgrade = migrate(original.record, pack);
+    if (!upgrade.versions.length) return;
+    const lease = store.acquire(recordId, worker, true);
+    if (!('leaseToken' in lease))
+      throw new PlatformError(
+        'LEASE_HELD',
+        'Schema upgrade is waiting for the current editor',
+        409,
+      );
+    try {
+      const states = service.validated(upgrade.record);
+      store.save(
+        upgrade.record,
+        { ifMatch: original.etag, leaseToken: lease.leaseToken },
+        worker,
+        'migrate',
+        'schema_upgraded',
+        states,
+      );
+      service.updateExceptions(upgrade.record);
+    } finally {
+      store.release(recordId, lease.leaseToken, worker);
+    }
+  };
   if (!store.users().length) {
     if (options.demo) {
       for (const role of ['admin', 'operator', 'reviewer'] as const)
@@ -100,6 +143,7 @@ export function createApp(
       status: 'ok',
       mode: options.demo ? 'synthetic-demo' : 'local',
       delivery: outbox ? 'file-drop' : 'simulated',
+      records: authority ? 'sharepoint' : 'local',
       strayFiles:
         (outbox ? strayFiles(outbox).length : 0) + (landing ? strayFiles(landing).length : 0),
       llm: 'disabled',
@@ -282,88 +326,85 @@ export function createApp(
     );
   });
   app.get('/api/records/:id', (req, res) => {
-    const original = store.load(id(req));
-    const upgrade = migrate(original.record, pack);
-    if (upgrade.versions.length) {
-      const lease = store.acquire(id(req), worker, true);
-      if (!('leaseToken' in lease))
-        throw new PlatformError(
-          'LEASE_HELD',
-          'Schema upgrade is waiting for the current editor',
-          409,
-        );
-      try {
-        const states = service.validated(upgrade.record);
-        store.save(
-          upgrade.record,
-          { ifMatch: original.etag, leaseToken: lease.leaseToken },
-          worker,
-          'migrate',
-          'schema_upgraded',
-          states,
-        );
-        service.updateExceptions(upgrade.record);
-      } finally {
-        store.release(id(req), lease.leaseToken, worker);
-      }
-    }
+    // With SharePoint, upgrades happen when the record is checked out, so they are published.
+    if (!authority) migrateIfNeeded(id(req));
     const loaded = store.load(id(req));
     res.json({
       ...loaded,
       evaluation: evaluate(pack, loaded.record.data),
       lease: store.leaseStatus(id(req)),
+      sharepoint: authority ? (store.remote(id(req)) ?? null) : undefined,
     });
   });
-  app.post('/api/records/:id/lease', (req, res) => {
-    store.load(id(req));
+  app.post('/api/records/:id/lease', async (req, res) => {
+    if (authority) {
+      const held = await service.checkOutRemote(id(req), holder(req));
+      if (held) return res.json(held);
+      try {
+        store.load(id(req));
+        migrateIfNeeded(id(req));
+      } catch (error) {
+        await service.finishRemote(id(req));
+        throw error;
+      }
+    } else store.load(id(req));
     const lease = store.acquire(id(req), actor(req));
+    if (!('leaseToken' in lease)) await service.finishRemote(id(req));
     changed();
     res.json(lease);
   });
-  app.post('/api/records/:id/lease/renew', (req, res) =>
-    res.json(
-      store.renew(
-        id(req),
-        z.object({ leaseToken: z.string().uuid() }).parse(req.body).leaseToken,
-        actor(req),
-      ),
-    ),
-  );
-  app.post('/api/records/:id/lease/release', (req, res) => {
+  app.post('/api/records/:id/lease/renew', async (req, res) => {
+    const lease = store.renew(
+      id(req),
+      z.object({ leaseToken: z.string().uuid() }).parse(req.body).leaseToken,
+      actor(req),
+    );
+    const token = store.remote(id(req))?.token;
+    if (authority && token) await authority.renew(id(req), token, 'human');
+    res.json(lease);
+  });
+  app.post('/api/records/:id/lease/release', async (req, res) => {
     store.release(
       id(req),
       z.object({ leaseToken: z.string().uuid() }).parse(req.body).leaseToken,
       actor(req),
     );
+    const sharepoint = await service.finishRemote(id(req));
     changed();
-    res.json({ ok: true });
+    res.json({ ok: true, sharepoint });
   });
-  app.post('/api/records/:id/lease/break', roles('admin'), (req, res) => {
+  app.post('/api/records/:id/lease/break', roles('admin'), async (req, res) => {
     store.breakLease(
       id(req),
       actor(req),
       z.object({ reason: z.string().min(1).max(500) }).parse(req.body).reason,
     );
+    if (authority) {
+      await authority.breakLease(id(req));
+      store.setRemote(id(req), { token: null, holder_kind: null });
+    }
     changed();
     res.json({ ok: true });
   });
-  app.put('/api/records/:id', (req, res) => {
+  app.put('/api/records/:id', async (req, res) => {
     const body = editBody.parse(req.body);
-    res.json(
-      service.edit(
-        id(req),
-        body.data,
-        body.etag,
-        body.leaseToken,
-        actor(req),
-        req.user!.role,
-        body.resolveConflicts,
-      ),
+    await assertRemote(id(req));
+    const saved = service.edit(
+      id(req),
+      body.data,
+      body.etag,
+      body.leaseToken,
+      actor(req),
+      req.user!.role,
+      body.resolveConflicts,
     );
+    res.json({ ...saved, sharepoint: await service.finishRemote(id(req)) });
   });
-  app.post('/api/records/:id/playbook', (req, res) => {
+  app.post('/api/records/:id/playbook', async (req, res) => {
     const body = z.object({ code: z.string() }).parse(req.body);
-    service.applyPlaybook(id(req), body.code, actor(req));
+    await service.withRemote(authority ? [id(req)] : [], () =>
+      service.applyPlaybook(id(req), body.code, actor(req)),
+    );
     res.json({ ok: true });
   });
   app.get('/api/records/:id/bundle', (req, res) => {
@@ -419,7 +460,7 @@ export function createApp(
     changed();
     res.json({ ok: true });
   });
-  app.post('/api/records/:id/scope', roles('reviewer', 'admin'), (req, res) => {
+  app.post('/api/records/:id/scope', roles('reviewer', 'admin'), async (req, res) => {
     const { decision, reason, leaseToken } = z
       .object({
         decision: z.enum(['keep', 'withdraw']),
@@ -427,10 +468,12 @@ export function createApp(
         leaseToken: z.string().uuid(),
       })
       .parse(req.body);
+    await assertRemote(id(req));
     service.decideScope(id(req), decision, reason, leaseToken, actor(req));
-    res.json({ ok: true });
+    res.json({ ok: true, sharepoint: await service.finishRemote(id(req)) });
   });
-  app.put('/api/records/:id/amendment', roles('reviewer', 'admin'), (req, res) => {
+  app.put('/api/records/:id/amendment', roles('reviewer', 'admin'), async (req, res) => {
+    await assertRemote(id(req));
     const body = editBody.parse(req.body),
       loaded = store.load(id(req));
     store.ownsLease(id(req), body.leaseToken, actor(req));
@@ -457,7 +500,7 @@ export function createApp(
     );
     store.release(id(req), body.leaseToken, actor(req));
     changed();
-    res.json(result);
+    res.json({ ...result, sharepoint: await service.finishRemote(id(req)) });
   });
   app.get('/api/records/:id/amendment.pdf', async (req, res) => {
     const record = store.load(id(req)).record;
@@ -485,8 +528,9 @@ export function createApp(
     const { decision, leaseToken } = z
       .object({ decision: z.enum(['approve', 'reject']), leaseToken: z.string().uuid() })
       .parse(req.body);
+    await assertRemote(id(req));
     await service.decideAmendment(id(req), decision, leaseToken, actor(req));
-    res.json({ ok: true });
+    res.json({ ok: true, sharepoint: await service.finishRemote(id(req)) });
   });
   app.get('/api/trace', (req, res) => {
     const filter = z
@@ -591,7 +635,8 @@ export function createApp(
           : 'The request could not be completed',
     });
   });
-  let running = false;
+  let running = false,
+    lastSync = 0;
   const timer =
     options.startWorker === false
       ? undefined
@@ -599,6 +644,12 @@ export function createApp(
           if (running) return;
           running = true;
           try {
+            // Every 15 seconds: retry unfinished SharePoint publishes and pull others' changes.
+            if (authority && Date.now() - lastSync > 15000) {
+              lastSync = Date.now();
+              await service.publishPending();
+              await service.syncFromSharePoint();
+            }
             await service.runOne();
           } catch (e) {
             console.error(

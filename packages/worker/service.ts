@@ -26,6 +26,7 @@ import {
   batchLoadFiles,
 } from '../adapters/cbs';
 import { type CsvPackage, csvPackageToExtract } from '../adapters/csv-extract';
+import { type Holder, SharePointAuthority } from '../adapters/sharepoint';
 
 // A pipeline failure with its triage class and the field it points at (section 8.1).
 class PipelineError extends PlatformError {
@@ -48,6 +49,7 @@ type ImportInput = {
 };
 
 export const worker: Actor = { id: 'pipeline-worker', kind: 'system' };
+const pipeline: Holder = { id: worker.id, name: 'MIGTOOL pipeline', kind: 'worker' };
 export class MigrationService {
   operations: { retrySeconds: number[]; circuitCount: number; circuitFraction: number };
   constructor(
@@ -55,8 +57,186 @@ export class MigrationService {
     public pack: Pack,
     public changed = () => {},
     public cbs: CbsAdapter = new SimulatedCbs(store),
+    // When set, SharePoint is the record authority and the local database a working copy.
+    public authority?: SharePointAuthority,
   ) {
     this.operations = pack.operations;
+  }
+  // Checks a record out of SharePoint and brings the local working copy up to date with it.
+  // Returns who holds it if it is in use elsewhere.
+  async checkOutRemote(
+    id: string,
+    holder: Holder,
+  ): Promise<{ heldBy: string; since: string } | undefined> {
+    if (!this.authority) return undefined;
+    const result = await this.authority.checkOut(id, holder);
+    if ('heldBy' in result) return result;
+    const state = this.store.remote(id),
+      local = this.store.exists(id) ? this.store.load(id).record : undefined;
+    let published = state?.published_version ?? 0,
+      traceSeq = state?.trace_seq ?? 0;
+    if (result.file && (!local || state?.etag !== result.file.eTag)) {
+      const remote = JSON.parse(result.file.body) as Envelope;
+      // SharePoint changed while this server held unpublished changes: SharePoint wins and the
+      // local copy is kept for review, never silently dropped.
+      if (local && local.version > published) this.remoteConflict(local, 'changed_in_sharepoint');
+      this.store.replaceFromRemote(remote, worker, { eTag: result.file.eTag });
+      this.updateExceptions(remote);
+      published = remote.version;
+      traceSeq = this.store.traceSeq(id);
+    }
+    this.store.setRemote(id, {
+      etag: result.file?.eTag ?? null,
+      token: result.token,
+      holder_kind: holder.kind,
+      published_version: published,
+      trace_seq: traceSeq,
+      error: null,
+    });
+    return undefined;
+  }
+  // Ends a check-out: publishes the local copy if it changed, otherwise undoes the check-out.
+  // A failed publish leaves the file checked out and the record closed locally; it is retried.
+  async finishRemote(
+    id: string,
+  ): Promise<'none' | 'published' | 'released' | 'pending' | 'conflict'> {
+    const state = this.store.remote(id);
+    if (!this.authority || !state?.token) return 'none';
+    const local = this.store.exists(id) ? this.store.load(id).record : undefined;
+    if (!local || local.version <= state.published_version) {
+      try {
+        await this.authority.abandon(id, state.token);
+      } catch (error) {
+        // The SharePoint lease expires on its own; the check-out is undone by the next holder.
+        this.store.trace(id, worker, 'lease', 'sharepoint_release_failed', {
+          code: (error as PlatformError).code,
+        });
+      }
+      this.store.setRemote(id, { token: null, holder_kind: null, pending: 0 });
+      return 'released';
+    }
+    this.store.setRemote(id, { pending: 1 });
+    try {
+      const etag = await this.authority.publish(
+        id,
+        state.token,
+        local,
+        state.etag ?? undefined,
+        this.store.tracesAfter(id, state.trace_seq),
+      );
+      this.store.trace(id, worker, 'merge', 'published_to_sharepoint', { version: local.version });
+      this.store.setRemote(id, {
+        etag,
+        token: null,
+        holder_kind: null,
+        published_version: local.version,
+        pending: 0,
+        trace_seq: this.store.traceSeq(id),
+        error: null,
+      });
+      this.changed();
+      return 'published';
+    } catch (error) {
+      const code = (error as PlatformError).code ?? 'SYSTEM';
+      if (['SHAREPOINT_STALE', 'SHAREPOINT_LEASE_LOST'].includes(code)) {
+        this.remoteConflict(local, code);
+        // The next check-out takes SharePoint's version.
+        this.store.setRemote(id, {
+          etag: null,
+          token: null,
+          holder_kind: null,
+          published_version: local.version,
+          pending: 0,
+          error: code,
+        });
+        this.changed();
+        return 'conflict';
+      }
+      this.store.setRemote(id, { error: code });
+      this.store.trace(id, worker, 'merge', 'sharepoint_publish_retry', { code });
+      return 'pending';
+    }
+  }
+  private remoteConflict(local: Envelope, reason: string) {
+    this.store.keepConflict(local);
+    this.store.trace(
+      local.recordId,
+      worker,
+      'merge',
+      'sharepoint_conflict',
+      { reason, localVersion: local.version },
+      { errorCode: 'SHAREPOINT_CONFLICT', errorClass: 'conflict', tier: 3 },
+    );
+    this.store.exception({
+      recordId: local.recordId,
+      batchId: local.batchId,
+      code: 'SHAREPOINT_CONFLICT',
+      errorClass: 'conflict',
+      tier: 3,
+      message: `Local changes to version ${local.version} could not be published (${reason}); SharePoint's copy is current and the local copy is kept for review.`,
+      fields: [],
+      signature: 'remote:conflict',
+    });
+  }
+  // Runs worker writes inside a SharePoint check-out of each record.
+  async withRemote<T>(ids: string[], fn: () => T | Promise<T>): Promise<T> {
+    const taken: string[] = [];
+    try {
+      for (const id of ids) {
+        const held = await this.checkOutRemote(id, pipeline);
+        if (held) throw new PlatformError('LEASE_HELD', `${id} is in use by ${held.heldBy}`, 409);
+        taken.push(id);
+      }
+      return await fn();
+    } finally {
+      for (const id of taken) await this.finishRemote(id);
+    }
+  }
+  // Publishes records changed locally outside a check-out (bulk ingest): each is checked out
+  // just before publishing, and SharePoint wins if it changed in the meantime.
+  async publishLocalChanges(ids: string[]) {
+    for (const id of ids) {
+      if (this.store.remote(id)?.token) continue;
+      const held = await this.checkOutRemote(id, pipeline);
+      if (held) {
+        // Someone has it checked out: publish after they release it. If they change it first,
+        // the next check-out keeps this copy for review instead.
+        this.store.setRemote(id, { pending: 1, error: `HELD:${held.heldBy}` });
+        continue;
+      }
+      await this.finishRemote(id);
+    }
+  }
+  // Retries publishes that failed or waited, from the worker loop.
+  async publishPending() {
+    for (const id of this.store.pendingRemote())
+      if (this.store.remote(id)?.token) await this.finishRemote(id);
+      else await this.publishLocalChanges([id]);
+  }
+  // Brings local copies up to date with SharePoint for records nobody has checked out.
+  async syncFromSharePoint(): Promise<number> {
+    if (!this.authority) return 0;
+    const { files, leased } = await this.authority.snapshot();
+    let pulled = 0;
+    for (const file of files) {
+      const id = file.recordId,
+        state = this.store.remote(id);
+      if (leased.has(id) || state?.token || state?.pending || state?.etag === file.eTag) continue;
+      if (this.store.leaseStatus(id)) continue;
+      const local = this.store.exists(id) ? this.store.load(id).record : undefined;
+      if (local && state && local.version > state.published_version) continue;
+      const remote = JSON.parse(await this.authority.read(file.id)) as Envelope;
+      this.store.replaceFromRemote(remote, worker, { eTag: file.eTag });
+      this.store.setRemote(id, {
+        etag: file.eTag,
+        published_version: remote.version,
+        trace_seq: this.store.traceSeq(id),
+      });
+      this.updateExceptions(remote);
+      pulled++;
+    }
+    if (pulled) this.changed();
+    return pulled;
   }
   validated(record: Envelope): State[] {
     const result = evaluate(this.pack, record.data),
@@ -173,9 +353,30 @@ export class MigrationService {
     this.store.db
       .prepare("INSERT INTO ingest_runs VALUES(?,?,?,'queued')")
       .run(runId, JSON.stringify(input), JSON.stringify(actor));
-    return this.executeImport(runId, input, actor);
+    return this.importWithRemote(runId, input, actor);
   }
-  private executeImport(runId: string, input: ImportInput, actor: Actor): Batch {
+  // With SharePoint: refresh local copies first, skip records someone has checked out, import
+  // locally in one transaction, then publish every record the import changed.
+  private async importWithRemote(runId: string, input: ImportInput, actor: Actor) {
+    if (!this.authority) return this.executeImport(runId, input, actor);
+    await this.syncFromSharePoint();
+    const { leased } = await this.authority.snapshot();
+    const before = new Map(this.store.list().map((r) => [r.recordId, r.version]));
+    const batch = this.executeImport(runId, input, actor, leased);
+    await this.publishLocalChanges(
+      this.store
+        .list()
+        .filter((r) => r.version !== before.get(r.recordId))
+        .map((r) => r.recordId),
+    );
+    return batch;
+  }
+  private executeImport(
+    runId: string,
+    input: ImportInput,
+    actor: Actor,
+    held?: Set<string>,
+  ): Batch {
     const lease = this.store.acquire(`batch:${runId}`, worker, true);
     if (!('leaseToken' in lease))
       throw new PlatformError(
@@ -185,7 +386,7 @@ export class MigrationService {
       );
     try {
       return this.store.transaction(() => {
-        const result = this.ingestSync(input, actor, runId);
+        const result = this.ingestSync(input, actor, runId, held);
         this.store.db.prepare("UPDATE ingest_runs SET status='completed' WHERE id=?").run(runId);
         return result;
       });
@@ -206,7 +407,7 @@ export class MigrationService {
       this.store.release(`batch:${runId}`, lease.leaseToken, worker);
     }
   }
-  private ingestSync(input: ImportInput, actor: Actor, batchId: string): Batch {
+  private ingestSync(input: ImportInput, actor: Actor, batchId: string, held?: Set<string>): Batch {
     if (!Array.isArray(input.rows) || input.rows.length > 10000 || !input.totals)
       throw new PlatformError(
         'EXTRACT_INVALID',
@@ -273,6 +474,12 @@ export class MigrationService {
           throw new PlatformError(
             'DUPLICATE_CUSTOMER_KEY',
             'Both duplicate customer rows are rejected',
+          );
+        if (held?.has(key))
+          throw new PlatformError(
+            'LEASE_HELD',
+            'Record is checked out in SharePoint; re-import this row when it is released',
+            409,
           );
         for (const column of this.pack.ingest.required_columns)
           if (!Object.hasOwn(row, column))
@@ -642,7 +849,7 @@ export class MigrationService {
       .get() as any;
     if (pendingImport) {
       try {
-        this.executeImport(
+        await this.importWithRemote(
           pendingImport.id,
           JSON.parse(pendingImport.input),
           JSON.parse(pendingImport.actor),
@@ -675,6 +882,21 @@ export class MigrationService {
         .run(this.store.now() + 1000, job.id);
       return false;
     }
+    if (!this.authority) return this.runJob(job, batch);
+    const held = await this.checkOutRemote(job.record_id, pipeline);
+    if (held) {
+      this.store.db
+        .prepare("UPDATE jobs SET status='queued',available=? WHERE id=?")
+        .run(this.store.now() + 1000, job.id);
+      return false;
+    }
+    try {
+      return await this.runJob(job, batch);
+    } finally {
+      await this.finishRemote(job.record_id);
+    }
+  }
+  private async runJob(job: any, batch: Batch): Promise<boolean> {
     let leaseToken: string | undefined;
     try {
       const lease = this.store.acquire(job.record_id, worker, true);

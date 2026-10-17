@@ -362,7 +362,16 @@ function App() {
     dirty.current = false;
     setSelected({ ...selected, ...result, evaluation: evaluate(pack!, result.record.data) });
     setSavedDraft(null);
-    tell(`Saved ${selected.record.recordId}. ${label(result.record.state)}. Lease released.`);
+    tell(
+      `Saved ${selected.record.recordId}. ${label(result.record.state)}. Lease released.` +
+        (result.sharepoint === 'published'
+          ? ' Published to SharePoint.'
+          : result.sharepoint === 'pending'
+            ? ' SharePoint publish pending; the record stays checked out until it completes.'
+            : result.sharepoint === 'conflict'
+              ? ' SharePoint changed meanwhile: its copy was kept and yours sent for review.'
+              : ''),
+    );
     await refresh();
   }
   const local = pack && selected ? evaluate(pack, draft) : null;

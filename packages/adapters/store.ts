@@ -49,6 +49,8 @@ export class Store {
       CREATE TABLE IF NOT EXISTS amendment_outputs (id TEXT PRIMARY KEY,record_id TEXT NOT NULL,bytes BLOB NOT NULL,digest TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS cbs_receipts (idempotency_key TEXT PRIMARY KEY, record_id TEXT NOT NULL, expected TEXT NOT NULL, received_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY,value TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS remote (record_id TEXT PRIMARY KEY, etag TEXT, token TEXT, holder_kind TEXT, published_version INTEGER NOT NULL DEFAULT 0, pending INTEGER NOT NULL DEFAULT 0, trace_seq INTEGER NOT NULL DEFAULT 0, error TEXT);
+      CREATE TABLE IF NOT EXISTS remote_conflicts (seq INTEGER PRIMARY KEY AUTOINCREMENT, record_id TEXT NOT NULL, body TEXT NOT NULL, at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS notices (seq INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, body TEXT NOT NULL, delivered INTEGER NOT NULL DEFAULT 0);
     `);
   }
@@ -202,6 +204,10 @@ export class Store {
     return this.transaction(() => {
       const held = this.activeLease(id);
       if (held) return { heldBy: held.holder, since: new Date(held.acquired).toISOString() };
+      // A record whose last save has not yet reached SharePoint stays closed until it has.
+      const remote = this.remote(id);
+      if (remote?.pending)
+        return { heldBy: 'SharePoint publish in progress', since: this.timestamp() };
       const row = {
         record_id: id,
         holder: actor.id,
@@ -353,6 +359,82 @@ export class Store {
       );
       return { etag: String(saved.version), record: saved };
     });
+  }
+  remote(id: string):
+    | {
+        etag: string | null;
+        token: string | null;
+        holder_kind: 'human' | 'worker' | null;
+        published_version: number;
+        pending: number;
+        trace_seq: number;
+        error: string | null;
+      }
+    | undefined {
+    return this.db.prepare('SELECT * FROM remote WHERE record_id=?').get(id) as any;
+  }
+  setRemote(id: string, patch: Partial<NonNullable<ReturnType<Store['remote']>>>) {
+    const current = this.remote(id) ?? {
+      etag: null,
+      token: null,
+      holder_kind: null,
+      published_version: 0,
+      pending: 0,
+      trace_seq: 0,
+      error: null,
+    };
+    const next = { ...current, ...patch };
+    this.db
+      .prepare(
+        'INSERT INTO remote VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(record_id) DO UPDATE SET etag=excluded.etag,token=excluded.token,holder_kind=excluded.holder_kind,published_version=excluded.published_version,pending=excluded.pending,trace_seq=excluded.trace_seq,error=excluded.error',
+      )
+      .run(
+        id,
+        next.etag,
+        next.token,
+        next.holder_kind,
+        next.published_version,
+        next.pending,
+        next.trace_seq,
+        next.error,
+      );
+  }
+  pendingRemote(): string[] {
+    return (this.db.prepare('SELECT record_id FROM remote WHERE pending=1').all() as any[]).map(
+      (r) => r.record_id,
+    );
+  }
+  // Takes the SharePoint copy as the local working copy. Only called while nothing local holds
+  // the record and nothing local is waiting to be published.
+  replaceFromRemote(record: Envelope, actor: Actor, detail: Data = {}) {
+    this.transaction(() => {
+      this.db
+        .prepare(
+          'INSERT INTO records VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body,version=excluded.version',
+        )
+        .run(record.recordId, JSON.stringify(record), record.version);
+      this.trace(record.recordId, actor, 'merge', 'pulled_from_sharepoint', detail);
+    });
+  }
+  // A local change that SharePoint refused is kept for review rather than lost.
+  keepConflict(record: Envelope) {
+    this.db
+      .prepare('INSERT INTO remote_conflicts(record_id,body,at) VALUES(?,?,?)')
+      .run(record.recordId, JSON.stringify(record), this.timestamp());
+  }
+  traceSeq(recordId: string): number {
+    return (
+      this.db
+        .prepare('SELECT COALESCE(MAX(seq),0) AS n FROM trace WHERE record_id=?')
+        .get(recordId) as any
+    ).n;
+  }
+  tracesAfter(recordId: string, seq: number): Trace[] {
+    return (
+      this.db
+        .prepare('SELECT body FROM trace WHERE record_id=? AND seq>? ORDER BY seq')
+        .all(recordId, seq) as any[]
+    ).map((r) => JSON.parse(r.body));
   }
   putBatch(batch: Batch) {
     this.db
