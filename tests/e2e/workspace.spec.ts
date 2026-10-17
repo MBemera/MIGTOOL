@@ -109,7 +109,7 @@ test('imports the Bank 1 CSV package and hands Bank 2 CBS load files over', asyn
   await expect(page.getByRole('table').getByText('Reconciled', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Batch control', exact: true }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('link', { name: 'CBS load files' }).first().click();
+  await page.getByRole('link', { name: 'Load files', exact: true }).first().click();
   expect((await downloadPromise).suggestedFilename()).toMatch(/-bank2-cbs-load\.zip$/);
   await page.screenshot({ path: 'test-results/csv-batches.png', fullPage: true });
 });

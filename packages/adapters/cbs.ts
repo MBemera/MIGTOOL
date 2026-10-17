@@ -150,6 +150,7 @@ export function batchLoadFiles(pack: Pack, deliveries: { recordId: string; expec
 // database, which must be on local disk.
 export function stagingFor(databasePath: string, outbox?: string) {
   return (
+    process.env.LOAD_STAGING ??
     process.env.CBS_STAGING ??
     (databasePath === ':memory:'
       ? join(outbox ?? '.', '.staging')
@@ -158,7 +159,11 @@ export function stagingFor(databasePath: string, outbox?: string) {
 }
 // One choice of delivery for the server, the standalone worker and the scripts: the CBS load
 // folder beside the database unless CBS_OUTBOX names another; in-memory stores simulate.
-export function deliveryFor(store: Store, databasePath: string, outbox = process.env.CBS_OUTBOX) {
+export function deliveryFor(
+  store: Store,
+  databasePath: string,
+  outbox = process.env.LOAD_FOLDER ?? process.env.CBS_OUTBOX,
+) {
   const root =
     outbox ?? (databasePath === ':memory:' ? undefined : join(dirname(databasePath), 'cbs-outbox'));
   return {

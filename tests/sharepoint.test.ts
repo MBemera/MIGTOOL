@@ -16,9 +16,9 @@ const ana: Holder = { id: 'ana', name: 'Ana Operator', kind: 'human' },
 const timing = { leaseMs: pack.operations.leaseMs, workerLeaseMs: pack.operations.workerLeaseMs };
 const csvFiles = () =>
   Object.fromEntries(
-    readdirSync('fixtures/bank1-csv')
+    readdirSync('fixtures/sample-csv')
       .filter((f) => f.endsWith('.csv'))
-      .map((f) => [f, readFileSync(join('fixtures/bank1-csv', f), 'utf8')]),
+      .map((f) => [f, readFileSync(join('fixtures/sample-csv', f), 'utf8')]),
   );
 
 let sp: FakeSharePoint;

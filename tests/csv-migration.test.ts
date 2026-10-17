@@ -35,7 +35,7 @@ import { pack, extract, readyRecord } from './helpers';
 const admin: Actor = { id: 'admin-1', kind: 'human' },
   operator: Actor = { id: 'operator-1', kind: 'human' },
   reviewer: Actor = { id: 'reviewer-1', kind: 'human' };
-const fixtureDir = 'fixtures/bank1-csv';
+const fixtureDir = 'fixtures/sample-csv';
 const csvFiles = () =>
   Object.fromEntries(
     readdirSync(fixtureDir)

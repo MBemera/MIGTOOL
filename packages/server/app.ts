@@ -250,7 +250,7 @@ export function createApp(
     }),
   );
   app.get('/api/fixtures/csv', (_req, res) => {
-    const dir = 'fixtures/bank1-csv';
+    const dir = 'fixtures/sample-csv';
     res.json(
       Object.fromEntries(
         readdirSync(dir)
