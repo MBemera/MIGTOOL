@@ -27,6 +27,7 @@ export interface AafData {
   }[];
   "people"?: {
     "name"?: string;
+    "dateOfBirth"?: string;
     "email"?: string;
     "role"?: string;
   }[];

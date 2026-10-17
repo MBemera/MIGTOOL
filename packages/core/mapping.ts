@@ -18,6 +18,27 @@ export function transform(value: any, name: string | undefined, pack: Pack): any
   if (name === 'digitsOnly') return String(value ?? '').replace(/\D/g, '');
   if (name === 'padPostcode') return String(value ?? '').padStart(4, '0');
   if (name === 'uppercase') return String(value ?? '').toUpperCase();
+  if (name === 'yesNo') {
+    if (typeof value === 'boolean') return value;
+    const text = String(value ?? '')
+      .trim()
+      .toUpperCase();
+    if (['Y', 'YES', 'TRUE', '1'].includes(text)) return true;
+    if (['N', 'NO', 'FALSE', '0'].includes(text)) return false;
+    throw new PlatformError('INVALID_FLAG', `Expected Y or N, received ${String(value)}`);
+  }
+  if (name === 'isoDate') {
+    const text = String(value ?? '').trim();
+    const dmy = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text);
+    const iso = dmy ? `${dmy[3]}-${dmy[2]}-${dmy[1]}` : text;
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(iso) ||
+      Number.isNaN(Date.parse(iso)) ||
+      new Date(iso).toISOString().slice(0, 10) !== iso
+    )
+      throw new PlatformError('INVALID_DATE', `Expected DD/MM/YYYY or ISO date, received ${text}`);
+    return iso;
+  }
   if (name.startsWith('lookup:')) {
     const table = pack.lookups[name.slice(7)];
     if (!table || !Object.hasOwn(table, String(value)))
@@ -25,6 +46,8 @@ export function transform(value: any, name: string | undefined, pack: Pack): any
     return table[String(value)];
   }
   if (name === 'date:DD/MM/YYYY') {
+    // Optional dates export blank; malformed dates are still an error.
+    if (value == null || value === '') return '';
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value)))
       throw new PlatformError('INVALID_DATE', 'Expected ISO date');
     return String(value).split('-').reverse().join('/');
@@ -33,7 +56,15 @@ export function transform(value: any, name: string | undefined, pack: Pack): any
 }
 export const knownTransform = (name?: string) =>
   !name ||
-  ['trim', 'digitsOnly', 'padPostcode', 'uppercase', 'date:DD/MM/YYYY'].includes(name) ||
+  [
+    'trim',
+    'digitsOnly',
+    'padPostcode',
+    'uppercase',
+    'yesNo',
+    'isoDate',
+    'date:DD/MM/YYYY',
+  ].includes(name) ||
   name.startsWith('lookup:');
 function applyBindings(source: Data, bindings: Binding[], pack: Pack): Data {
   if (!source || typeof source !== 'object' || Array.isArray(source))
@@ -114,6 +145,17 @@ export function merge(
       for (const p of Object.keys(incomingLeaves))
         if ((p === root || p.startsWith(`${root}[`)) && edited) delete incomingLeaves[p];
     }
+  // A value the extract no longer supplies is a change to blank, not a reason to keep the old value.
+  const arrayRoots = [...roots].filter(
+    (root) => Array.isArray(incoming[root]) || Array.isArray(record.data[root]),
+  );
+  for (const path of Object.keys(record.baseline))
+    if (
+      !Object.hasOwn(incomingLeaves, path) &&
+      !arrayRoots.some((root) => path === root || path.startsWith(`${root}[`)) &&
+      record.baseline[path] != null
+    )
+      incomingLeaves[path] = null;
   for (const [path, value] of Object.entries(incomingLeaves)) {
     const current = get(record.data, path),
       baseline = record.baseline[path],
@@ -121,17 +163,19 @@ export function merge(
     if (human && !same(value, current) && !same(value, baseline)) {
       conflicts.push({ path, baseline, current, incoming: value });
     } else if (!human || same(value, current)) {
-      if (!same(current, value)) changes.push(path);
+      if (!same(current ?? null, value)) changes.push(path);
       set(result.data, path, value);
       result.provenance[path] = { source: 'extract', actor, at, traceEventId: eventId };
     }
     result.baseline[path] = structuredClone(value);
   }
   result.conflicts = conflicts;
+  // Exported records may already be at the CBS, so they are frozen like loaded ones.
   if (
-    ['loaded', 'reconciled', 'amendment_pending'].includes(record.state) &&
+    ['exported', 'loaded', 'reconciled', 'amendment_pending'].includes(record.state) &&
     (!same(result.data, record.data) || conflicts.length)
   ) {
+    if (record.state !== 'amendment_pending') result.amendmentFrom = record.state;
     result.pendingData = structuredClone(result.data);
     result.pendingBaseline = structuredClone(result.baseline);
     result.pendingProvenance = structuredClone(result.provenance);

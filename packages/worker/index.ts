@@ -1,9 +1,11 @@
 import { loadPack } from '../adapters/config';
 import { Store } from '../adapters/store';
+import { deliveryFor } from '../adapters/cbs';
 import { MigrationService } from './service';
 const pack = loadPack(),
-  store = new Store(process.env.DATABASE_PATH ?? 'var/migtool.sqlite', pack),
-  service = new MigrationService(store, pack);
+  databasePath = process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
+  store = new Store(databasePath, pack),
+  service = new MigrationService(store, pack, () => {}, deliveryFor(store, databasePath).cbs);
 let running = false;
 const timer = setInterval(async () => {
   if (running) return;

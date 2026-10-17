@@ -54,7 +54,8 @@
     },
     {
       "from": "FOREIGN_TAX",
-      "to": "tax.foreignTax"
+      "to": "tax.foreignTax",
+      "transform": "yesNo"
     }
   ],
   "groups": [
@@ -78,7 +79,8 @@
         },
         {
           "from": "OPEN_DATE",
-          "to": "openDate"
+          "to": "openDate",
+          "transform": "isoDate"
         }
       ]
     },
@@ -90,6 +92,11 @@
           "from": "NAME",
           "to": "name",
           "transform": "trim"
+        },
+        {
+          "from": "DATE_OF_BIRTH",
+          "to": "dateOfBirth",
+          "transform": "isoDate"
         },
         {
           "from": "EMAIL",
@@ -112,5 +119,14 @@
         }
       ]
     }
-  ]
+  ],
+  "csv": {
+    "customers": "customers.csv",
+    "control": "control.csv",
+    "groups": {
+      "ACCOUNTS": "accounts.csv",
+      "PEOPLE": "people.csv",
+      "SIGNATORIES": "signatories.csv"
+    }
+  }
 }

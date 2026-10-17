@@ -19,7 +19,10 @@
     "generate:schema": "node --import tsx scripts/generate-schema.ts",
     "format": "prettier --write packages scripts tests migrations docs *.ts *.json *.md",
     "revalidate": "node --env-file-if-exists=.env --import tsx scripts/revalidate.ts",
-    "benchmark": "node --import tsx scripts/benchmark.ts"
+    "benchmark": "node --import tsx scripts/benchmark.ts",
+    "csv:control": "node --import tsx scripts/csv-control.ts",
+    "import:csv": "node --env-file-if-exists=.env --import tsx scripts/import-csv.ts",
+    "export:batch": "node --env-file-if-exists=.env --import tsx scripts/export-batch.ts"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "1.1.1",

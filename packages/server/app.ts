@@ -1,18 +1,21 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import JSZip from 'jszip';
 import { z } from 'zod';
 import { stringify } from 'yaml';
 import { type Actor, type Data, type Role, type State, PlatformError, same } from '../core/model';
 import { evaluate } from '../core/engine';
 import { Store } from '../adapters/store';
 import { loadPack } from '../adapters/config';
-import { renderBundle, reportPdf } from '../adapters/renderers';
+import { reportPdf } from '../adapters/renderers';
 import { assertEditableData, leafValues } from '../core/mapping';
 import { migrate } from '../../migrations';
 import { MigrationService, worker } from '../worker/service';
+import { deliveryFor } from '../adapters/cbs';
+import { strayFiles } from '../adapters/files';
 
 declare global {
   namespace Express {
@@ -40,19 +43,23 @@ const roles =
     next();
   };
 export function createApp(
-  options: { databasePath?: string; demo?: boolean; startWorker?: boolean } = {},
+  options: {
+    databasePath?: string;
+    demo?: boolean;
+    startWorker?: boolean;
+    cbsOutbox?: string;
+  } = {},
 ) {
-  const pack = loadPack(),
-    store = new Store(
-      options.databasePath ?? process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
-      pack,
-    ),
+  const databasePath = options.databasePath ?? process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
+    pack = loadPack(),
+    store = new Store(databasePath, pack),
     app = express();
+  const { root: outbox, cbs } = deliveryFor(store, databasePath, options.cbsOutbox);
   const clients = new Set<Response>();
   const changed = () => {
     for (const response of clients) response.write('event: changed\ndata: {}\n\n');
   };
-  const service = new MigrationService(store, pack, changed);
+  const service = new MigrationService(store, pack, changed, cbs);
   if (!store.users().length) {
     if (options.demo) {
       for (const role of ['admin', 'operator', 'reviewer'] as const)
@@ -88,7 +95,8 @@ export function createApp(
     res.json({
       status: 'ok',
       mode: options.demo ? 'synthetic-demo' : 'local',
-      delivery: 'simulated',
+      delivery: outbox ? 'file-drop' : 'simulated',
+      strayFiles: outbox ? strayFiles(outbox).length : 0,
       llm: 'disabled',
       schemaVersion: pack.schema.version,
     });
@@ -171,7 +179,7 @@ export function createApp(
       clients.delete(res);
     });
   });
-  app.get('/api/overview', (_req, res) =>
+  app.get('/api/overview', (_req: Request, res) =>
     res.json({
       dashboard: service.dashboard(),
       records: store.list().map((r) => ({
@@ -188,8 +196,21 @@ export function createApp(
       batches: store.batches(),
       exceptions: store.exceptions().filter((e) => e.status === 'open'),
       leases: store.leases(),
+      notices: store.takeNotices(_req.user!.id),
+      delivery: outbox ? 'file-drop' : 'simulated',
     }),
   );
+  app.get('/api/fixtures/csv', (_req, res) => {
+    const dir = 'fixtures/bank1-csv';
+    res.json(
+      Object.fromEntries(
+        readdirSync(dir)
+          .filter((f) => f.endsWith('.csv'))
+          .sort()
+          .map((f) => [f, readFileSync(join(dir, f), 'utf8')]),
+      ),
+    );
+  });
   app.get('/api/fixtures/:kind', (req, res) => {
     const file =
       req.params.kind === 'refresh' ? 'fixtures/bank1-refresh.json' : 'fixtures/bank1-extract.json';
@@ -210,6 +231,23 @@ export function createApp(
       .strict()
       .parse(req.body);
     res.json(await service.ingest(input, actor(req)));
+  });
+  app.post('/api/ingest/csv', roles('admin'), async (req, res) => {
+    const input = z
+      .object({
+        name: z.string().max(120).optional(),
+        files: z.record(z.string().max(80), z.string()),
+        fullSnapshot: z.boolean().optional(),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(
+      await service.ingestCsv(
+        input.files,
+        { name: input.name, fullSnapshot: input.fullSnapshot },
+        actor(req),
+      ),
+    );
   });
   app.get('/api/records/:id', (req, res) => {
     const original = store.load(id(req));
@@ -311,6 +349,19 @@ export function createApp(
       .attachment(`${id(req)}-migration.zip`)
       .send(Buffer.from(output.bytes));
   });
+  app.get('/api/batches/:id/cbs-export', roles('reviewer', 'admin'), async (req, res) => {
+    const { files } = service.exportBatch(id(req)),
+      zip = new JSZip(),
+      date = new Date(store.batch(id(req)).createdAt);
+    for (const [name, bytes] of Object.entries(files))
+      zip.file(name, bytes, { date, createFolders: false });
+    res
+      .type('application/zip')
+      .attachment(`${id(req)}-bank2-cbs-load.zip`)
+      .send(
+        await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', platform: 'DOS' }),
+      );
+  });
   app.post('/api/batches/:id/release', roles('admin'), (req, res) =>
     res.json(service.releaseBatch(id(req), actor(req))),
   );
@@ -338,36 +389,13 @@ export function createApp(
   });
   app.post('/api/records/:id/scope', roles('reviewer', 'admin'), (req, res) => {
     const { decision, reason, leaseToken } = z
-        .object({
-          decision: z.enum(['keep', 'withdraw']),
-          reason: z.string().min(1).max(500),
-          leaseToken: z.string().uuid(),
-        })
-        .parse(req.body),
-      loaded = store.load(id(req));
-    store.ownsLease(id(req), leaseToken, actor(req));
-    if (
-      ['loaded', 'reconciled', 'exported', 'amendment_pending'].includes(loaded.record.state) &&
-      decision === 'withdraw'
-    )
-      throw new PlatformError(
-        'FROZEN_RECORD',
-        'Loaded records require a bank-approved reversal workflow',
-        409,
-      );
-    loaded.record.missingFromRefresh = false;
-    if (decision === 'withdraw') loaded.record.state = 'withdrawn';
-    store.save(
-      loaded.record,
-      { ifMatch: loaded.etag, leaseToken },
-      actor(req),
-      'admin',
-      `scope_${decision}`,
-    );
-    store.trace(id(req), actor(req), 'admin', 'scope_review', { reason });
-    store.resolve(id(req));
-    store.release(id(req), leaseToken, actor(req));
-    changed();
+      .object({
+        decision: z.enum(['keep', 'withdraw']),
+        reason: z.string().min(1).max(500),
+        leaseToken: z.string().uuid(),
+      })
+      .parse(req.body);
+    service.decideScope(id(req), decision, reason, leaseToken, actor(req));
     res.json({ ok: true });
   });
   app.put('/api/records/:id/amendment', roles('reviewer', 'admin'), (req, res) => {
@@ -423,55 +451,9 @@ export function createApp(
   });
   app.post('/api/records/:id/amendment', roles('reviewer', 'admin'), async (req, res) => {
     const { decision, leaseToken } = z
-        .object({ decision: z.enum(['approve', 'reject']), leaseToken: z.string().uuid() })
-        .parse(req.body),
-      loaded = store.load(id(req));
-    store.ownsLease(id(req), leaseToken, actor(req));
-    if (loaded.record.state !== 'amendment_pending' || !loaded.record.pendingData)
-      throw new PlatformError('NO_AMENDMENT', 'No amendment is pending');
-    if (loaded.record.conflicts.length)
-      throw new PlatformError(
-        'REVIEW_REQUIRED',
-        'Resolve amendment conflicts through a reviewed mapping change before approval',
-      );
-    if (decision === 'approve') {
-      const next = { ...loaded.record, data: loaded.record.pendingData };
-      if (!evaluate(pack, next.data).gates.cbs.open)
-        throw new PlatformError('GATE_CLOSED', 'Amended data must pass both gates');
-      const bundle = await renderBundle(pack, next);
-      store.db
-        .prepare('INSERT INTO cbs_receipts VALUES(?,?,?,?) ON CONFLICT(idempotency_key) DO NOTHING')
-        .run(
-          `amendment:${id(req)}:${bundle.digest}`,
-          id(req),
-          JSON.stringify(bundle.expected),
-          store.timestamp(),
-        );
-      const receipt = store.db
-        .prepare('SELECT expected FROM cbs_receipts WHERE idempotency_key=?')
-        .get(`amendment:${id(req)}:${bundle.digest}`) as any;
-      if (!same(JSON.parse(receipt.expected), bundle.expected))
-        throw new PlatformError('RECONCILIATION_MISMATCH', 'Amendment readback mismatch');
-      loaded.record.data = loaded.record.pendingData;
-      loaded.record.baseline = loaded.record.pendingBaseline ?? loaded.record.baseline;
-      loaded.record.provenance = loaded.record.pendingProvenance ?? loaded.record.provenance;
-      store.db
-        .prepare('INSERT INTO amendment_outputs VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING')
-        .run(`${id(req)}:${bundle.digest}`, id(req), bundle.bytes, bundle.digest);
-    }
-    delete loaded.record.pendingData;
-    delete loaded.record.pendingBaseline;
-    delete loaded.record.pendingProvenance;
-    loaded.record.state = 'reconciled';
-    store.save(
-      loaded.record,
-      { ifMatch: loaded.etag, leaseToken },
-      actor(req),
-      'reconcile',
-      `amendment_${decision}_simulated`,
-    );
-    store.release(id(req), leaseToken, actor(req));
-    changed();
+      .object({ decision: z.enum(['approve', 'reject']), leaseToken: z.string().uuid() })
+      .parse(req.body);
+    await service.decideAmendment(id(req), decision, leaseToken, actor(req));
     res.json({ ok: true });
   });
   app.get('/api/trace', (req, res) => {
@@ -484,17 +466,14 @@ export function createApp(
         traceId: z.string().optional(),
       })
       .parse(req.query);
-    let trace = store.traces(filter);
-    if (req.user!.role === 'operator') {
-      const owned = new Set(
-        store
-          .traces()
-          .filter((t) => t.actor.id === req.user!.id && ['edit', 'lease'].includes(t.step))
-          .map((t) => t.recordId),
-      );
-      trace = trace.filter((t) => owned.has(t.recordId));
-    }
-    res.json(trace);
+    // Operators see the trace of records they have edited or leased.
+    res.json(
+      store.traces(
+        req.user!.role === 'operator'
+          ? { ...filter, recordIds: store.recordsTouchedBy(req.user!.id) }
+          : filter,
+      ),
+    );
   });
   app.get('/api/dashboard.pdf', async (_req, res) => {
     const d = service.dashboard();

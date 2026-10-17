@@ -82,3 +82,34 @@ test('a second operator sees the current holder and cannot edit', async ({ brows
     await second.close();
   }
 });
+test('imports the Bank 1 CSV package and hands Bank 2 CBS load files over', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Username').fill('admin');
+  await page.getByLabel('Password', { exact: true }).fill('demo-admin-2026');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await page.getByRole('button', { name: 'Import extract', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Use example CSV extract' }).click();
+  await expect(page.getByRole('term').filter({ hasText: 'customers.csv' })).toBeVisible();
+  await page.getByRole('button', { name: 'Import CSV and validate' }).click();
+  await expect(page.getByText('10 created', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Customer records', exact: true }).click();
+  await page.getByPlaceholder('Customer name or ID').fill('B1-100003');
+  await page.getByRole('button', { name: 'Open record', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Mia Chen' })).toBeVisible();
+  await page.getByLabel('Declaration evidence reference').fill('CUSTOMER-TAX-DECLARATION');
+  await page.getByRole('button', { name: 'Signatories', exact: false }).first().click();
+  await page.getByLabel('Verified identity evidence').fill('PASSPORT-CHECKED');
+  await page.getByRole('button', { name: 'Save and validate' }).click();
+  await expect(page.getByText('Saved B1-100003. CBS ready.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Close record', exact: true }).click();
+  await page.getByRole('button', { name: 'Batch control', exact: true }).click();
+  await page.getByRole('button', { name: 'Release ready', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Customer records', exact: true }).click();
+  await page.getByPlaceholder('Customer name or ID').fill('B1-100003');
+  await expect(page.getByRole('table').getByText('Reconciled', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Batch control', exact: true }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'CBS load files' }).first().click();
+  expect((await downloadPromise).suggestedFilename()).toMatch(/-bank2-cbs-load\.zip$/);
+  await page.screenshot({ path: 'test-results/csv-batches.png', fullPage: true });
+});

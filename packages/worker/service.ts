@@ -1,6 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { parse } from 'yaml';
 import {
   type Actor,
   type Batch,
@@ -8,13 +6,10 @@ import {
   type Envelope,
   type Pack,
   type State,
-  type Trace,
   type Role,
-  expand,
-  fieldDefinition,
   get,
+  normalisePath,
   same,
-  set,
   PlatformError,
 } from '../core/model';
 import { evaluate, transition, validationStates } from '../core/engine';
@@ -23,7 +18,34 @@ import { validateProposal } from '../core/proposals';
 import { Store } from '../adapters/store';
 import { hash } from '../adapters/config';
 import { renderBundle } from '../adapters/renderers';
-import { type CbsAdapter, SimulatedCbs } from '../adapters/cbs';
+import {
+  type CbsAdapter,
+  CbsRejection,
+  SimulatedCbs,
+  asText,
+  batchLoadFiles,
+} from '../adapters/cbs';
+import { type CsvPackage, csvPackageToExtract } from '../adapters/csv-extract';
+
+// A pipeline failure with its triage class and the field it points at (section 8.1).
+class PipelineError extends PlatformError {
+  constructor(
+    code: string,
+    message: string,
+    public errorClass: 'mapping' | 'system',
+    public fieldPath?: string,
+  ) {
+    super(code, message, 409);
+  }
+}
+type ImportInput = {
+  name?: string;
+  rows: Data[];
+  totals: { customerCount: number; accountCount: number };
+  fullSnapshot?: boolean;
+  checksum?: string;
+  sourceFiles?: Record<string, string>;
+};
 
 export const worker: Actor = { id: 'pipeline-worker', kind: 'system' };
 export class MigrationService {
@@ -75,7 +97,9 @@ export class MigrationService {
         batchId: record.batchId,
         code: failure.id,
         errorClass: failure.class ?? 'data',
-        tier: failure.class === 'gap' ? 3 : 1,
+        // Data failures with an approved automatic fix sit at tier 1; with LLM steering disabled,
+        // everything else is for an operator (tier 3).
+        tier: failure.class !== 'gap' && this.playbookEntry('validate', failure.id) ? 1 : 3,
         message: failure.message,
         fields: failure.fields,
         signature: `validate:${failure.id}`,
@@ -103,18 +127,55 @@ export class MigrationService {
         signature: 'merge:missing',
       });
   }
-  async ingest(input: Parameters<MigrationService['ingestSync']>[0], actor: Actor): Promise<Batch> {
+  playbookEntry(step: string, code: string) {
+    return this.pack.playbook.entries.find(
+      (e) => e.autoApply && e.match.step === step && e.match.errorCode === code,
+    );
+  }
+  // WF-01 for a CSV extract package. A file-level fault stops the batch and escalates to tier 4.
+  async ingestCsv(
+    files: CsvPackage,
+    options: { name?: string; fullSnapshot?: boolean },
+    actor: Actor,
+  ): Promise<Batch> {
+    let extract;
+    try {
+      extract = csvPackageToExtract(this.pack, files, options.name);
+    } catch (error) {
+      if (error instanceof PlatformError) {
+        const id = `file:${randomUUID()}`;
+        this.store.trace(
+          id,
+          actor,
+          'ingest',
+          'file_rejected',
+          { files: Object.keys(files), message: error.message },
+          { errorCode: error.code, errorClass: 'system', tier: 4 },
+        );
+        this.store.exception({
+          recordId: id,
+          batchId: '',
+          code: error.code,
+          errorClass: 'system',
+          tier: 4,
+          message: error.message,
+          fields: [],
+          signature: `ingest:${error.code}`,
+        });
+        this.changed();
+      }
+      throw error;
+    }
+    return this.ingest({ ...extract, fullSnapshot: options.fullSnapshot }, actor);
+  }
+  async ingest(input: ImportInput, actor: Actor): Promise<Batch> {
     const runId = randomUUID();
     this.store.db
       .prepare("INSERT INTO ingest_runs VALUES(?,?,?,'queued')")
       .run(runId, JSON.stringify(input), JSON.stringify(actor));
     return this.executeImport(runId, input, actor);
   }
-  private executeImport(
-    runId: string,
-    input: Parameters<MigrationService['ingestSync']>[0],
-    actor: Actor,
-  ): Batch {
+  private executeImport(runId: string, input: ImportInput, actor: Actor): Batch {
     const lease = this.store.acquire(`batch:${runId}`, worker, true);
     if (!('leaseToken' in lease))
       throw new PlatformError(
@@ -145,17 +206,7 @@ export class MigrationService {
       this.store.release(`batch:${runId}`, lease.leaseToken, worker);
     }
   }
-  private ingestSync(
-    input: {
-      name?: string;
-      rows: Data[];
-      totals: { customerCount: number; accountCount: number };
-      fullSnapshot?: boolean;
-      checksum?: string;
-    },
-    actor: Actor,
-    batchId: string,
-  ): Batch {
+  private ingestSync(input: ImportInput, actor: Actor, batchId: string): Batch {
     if (!Array.isArray(input.rows) || input.rows.length > 10000 || !input.totals)
       throw new PlatformError(
         'EXTRACT_INVALID',
@@ -206,6 +257,7 @@ export class MigrationService {
       const key = String(row?.[this.pack.ingest.key] ?? '');
       keys.set(key, (keys.get(key) ?? 0) + 1);
     }
+    const committed: string[] = [];
     for (let index = 0; index < input.rows.length; index++) {
       const row = input.rows[index],
         key = String(row?.[this.pack.ingest.key] ?? ''),
@@ -281,6 +333,7 @@ export class MigrationService {
             states,
           );
           this.updateExceptions(record);
+          committed.push(id);
           batch.counts.created++;
         } else {
           const { record, etag } = this.store.load(id);
@@ -291,8 +344,12 @@ export class MigrationService {
             );
           const result = merge(record, data, actor.id, this.store.timestamp(), randomUUID());
           result.record.sourceRowHash = rowHash;
+          // The customer is in this extract, so an earlier missing-from-snapshot flag is cleared.
+          result.record.missingFromRefresh = false;
           const states: State[] = [];
-          if (!['amendment_pending', 'loaded', 'reconciled'].includes(result.record.state))
+          if (
+            !['amendment_pending', 'exported', 'loaded', 'reconciled'].includes(result.record.state)
+          )
             states.push(...this.validated(result.record));
           this.store.save(
             result.record,
@@ -311,6 +368,7 @@ export class MigrationService {
               { path },
             );
           this.updateExceptions(result.record);
+          committed.push(id);
           batch.counts.updated++;
         }
       } catch (error) {
@@ -345,6 +403,7 @@ export class MigrationService {
           } catch {}
       }
     }
+    for (const id of committed) this.autoTriage(id);
     if (input.fullSnapshot && batch.counts.rejected === 0) {
       const incoming = new Set(input.rows.map((row) => String(row[this.pack.ingest.key])));
       for (const record of this.store.list())
@@ -376,7 +435,7 @@ export class MigrationService {
       actor,
       'ingest',
       'completed',
-      { counts: batch.counts, inputHash: digest },
+      { counts: batch.counts, inputHash: digest, sourceFiles: input.sourceFiles },
       { batchId: batch.id },
     );
     this.changed();
@@ -429,13 +488,28 @@ export class MigrationService {
     this.changed();
     return saved;
   }
-  applyPlaybook(id: string, code: string, actor: Actor) {
-    const entry = this.pack.playbook.entries.find(
-      (e) => e.match.step === 'validate' && e.match.errorCode === code,
-    );
-    if (!entry || !entry.autoApply)
+  // Tier 1 (WF-05 step 4): apply an approved playbook fix. One application per entry and record;
+  // a repeat of the same error escalates instead of looping.
+  applyPlaybook(id: string, code: string, actor: Actor, step: 'validate' | 'load' = 'validate') {
+    const entry = this.playbookEntry(step, code);
+    if (!entry)
       throw new PlatformError('PLAYBOOK_UNAVAILABLE', 'No approved automatic fix for this error');
-    const record = this.store.load(id).record;
+    const { record, etag } = this.store.load(id);
+    if (
+      step === 'load' &&
+      this.store
+        .traces({ recordId: id })
+        .some(
+          (t) => t.step === 'fix' && t.decision === 'playbook_used' && t.detail?.entry === entry.id,
+        )
+    )
+      throw new PlatformError('PLAYBOOK_EXHAUSTED', `Playbook ${entry.id} was already applied`);
+    // A CBS code names no rule, so the fix is checked against the rule that owns the field.
+    const rule =
+      step === 'validate'
+        ? code
+        : this.pack.rules.rules.find((r) => r.fields.includes(normalisePath(entry.path)))?.id;
+    if (!rule) throw new PlatformError('REVIEW_REQUIRED', `No rule covers ${entry.path}`);
     const proposal = {
       errorClass: 'data',
       diagnosis: `Approved playbook ${entry.id}`,
@@ -449,34 +523,63 @@ export class MigrationService {
       citedFields: [entry.path],
       confidence: 1,
     };
-    const result = validateProposal(this.pack, record.data, proposal, code, { source: 'playbook' });
+    const result = validateProposal(this.pack, record.data, proposal, rule, { source: 'playbook' });
     if (!result.apply) throw new PlatformError('REVIEW_REQUIRED', result.reason);
+    if (same(result.data, record.data))
+      throw new PlatformError('PLAYBOOK_NO_CHANGE', `Playbook ${entry.id} changes nothing`);
     const lease = this.store.acquire(id, worker, true);
     if (!('leaseToken' in lease)) throw new PlatformError('LEASE_HELD', 'Record is in use', 409);
     try {
       record.data = result.data;
-      for (const op of proposal.patch)
-        record.provenance[entry.path] = {
-          source: 'playbook',
-          actor: entry.id,
-          at: this.store.timestamp(),
-          traceEventId: randomUUID(),
-        };
+      record.provenance[entry.path] = {
+        source: 'playbook',
+        actor: entry.id,
+        at: this.store.timestamp(),
+        traceEventId: randomUUID(),
+      };
       const states = this.validated(record);
       const saved = this.store.save(
         record,
-        { ifMatch: String(record.version), leaseToken: lease.leaseToken },
+        { ifMatch: etag, leaseToken: lease.leaseToken },
         worker,
         'fix',
         'auto_applied',
         states,
       );
-      this.store.trace(id, actor, 'fix', 'playbook_used', { entry: entry.id });
+      this.store.trace(
+        id,
+        actor,
+        'fix',
+        'playbook_used',
+        { entry: entry.id, errorCode: code, path: entry.path },
+        { tier: 1 },
+      );
       this.updateExceptions(saved.record);
+      return saved.record;
     } finally {
       this.store.release(id, lease.leaseToken, worker);
     }
-    this.changed();
+  }
+  // After a committed write, apply any approved validate-step fixes for failing data rules.
+  autoTriage(id: string) {
+    const record = this.store.load(id).record;
+    if (!['blocked', 'needs_input'].includes(record.state)) return;
+    for (const rule of evaluate(this.pack, record.data).rules.filter(
+      (r) => !r.passed && r.class !== 'gap' && this.playbookEntry('validate', r.id),
+    ))
+      try {
+        this.applyPlaybook(id, rule.id, worker);
+      } catch (error) {
+        if (!(error instanceof PlatformError)) throw error;
+        this.store.trace(
+          id,
+          worker,
+          'triage',
+          'routed_to_ops',
+          { rule: rule.id, reason: error.code },
+          { errorCode: rule.id, errorClass: 'data', tier: 3 },
+        );
+      }
   }
   releaseBatch(id: string, actor: Actor) {
     const batch = this.store.batch(id);
@@ -509,16 +612,13 @@ export class MigrationService {
     const pending = this.store.db
       .prepare("SELECT 1 FROM jobs WHERE batch_id=? AND status IN ('queued','running') LIMIT 1")
       .get(id);
-    if (pending) batch.state = 'running';
+    if (pending) {
+      batch.state = 'running';
+      // The circuit breaker counts failures within this run only (section 8.4).
+      if (queued) batch.runStartedAt = this.store.timestamp();
+    }
     this.store.putBatch(batch);
-    this.store.trace(
-      `batch:${id}`,
-      actor,
-      'admin',
-      'released',
-      { queued, delivery: 'simulated-cbs' },
-      { batchId: id },
-    );
+    this.store.trace(`batch:${id}`, actor, 'admin', 'released', { queued }, { batchId: id });
     this.changed();
     return { queued };
   }
@@ -625,67 +725,77 @@ export class MigrationService {
         );
       }
       if (record.state === 'exported') {
-        const output = this.store.db
-          .prepare('SELECT * FROM outputs WHERE record_id=?')
-          .get(record.recordId) as any;
-        if (!output) throw new PlatformError('OUTPUT_MISSING', 'Exported output not found', 500);
+        const output = this.output(record.recordId);
         const expected = JSON.parse(output.expected);
         if (
           expected['Customer_Create.csv']?.length !== 1 ||
           expected['Account_Register.csv']?.length !== (record.data.accounts?.length ?? 0)
         )
-          throw new PlatformError('CONTROL_TOTAL_MISMATCH', 'Export totals differ from the record');
+          throw new PipelineError(
+            'CONTROL_TOTAL_MISMATCH',
+            'Export totals differ from the record',
+            'system',
+          );
         await this.cbs.deliver(
           `${record.recordId}:${output.digest}`,
           record.recordId,
           expected,
           this.store.timestamp(),
         );
-        save('load', 'loaded', 'simulated_cbs_accepted');
+        save('load', 'loaded', 'cbs_accepted');
       }
       if (record.state === 'loaded') {
-        const output = this.store.db
-          .prepare('SELECT * FROM outputs WHERE record_id=?')
-          .get(record.recordId) as any;
+        const output = this.output(record.recordId);
         const receipt = await this.cbs.readback(`${record.recordId}:${output.digest}`);
-        if (!receipt || !same(JSON.parse(output.expected), receipt))
-          throw new PlatformError('RECONCILIATION_MISMATCH', 'CBS readback differs from export');
+        if (!receipt)
+          throw new PipelineError('RECONCILIATION_MISMATCH', 'CBS holds no load', 'system');
+        const difference = this.firstDifference(JSON.parse(output.expected), receipt);
+        if (difference)
+          throw new PipelineError(
+            'RECONCILIATION_MISMATCH',
+            `CBS readback differs at ${difference.label}`,
+            'mapping',
+            difference.path,
+          );
         for (const [path, value] of Object.entries(record.baseline))
           if (record.provenance[path]?.source === 'extract' && !same(get(record.data, path), value))
-            throw new PlatformError('BASELINE_DRIFT', `Extract baseline drift at ${path}`);
-        save('reconcile', 'reconciled', 'simulated_readback_matched');
+            throw new PipelineError(
+              'BASELINE_DRIFT',
+              `Extract baseline drift at ${path}`,
+              'mapping',
+              path,
+            );
+        save('reconcile', 'reconciled', 'readback_matched');
       }
       this.store.db.prepare("UPDATE jobs SET status='completed' WHERE id=?").run(job.id);
-      const pending = this.store.db
-        .prepare("SELECT 1 FROM jobs WHERE batch_id=? AND status IN ('queued','running') LIMIT 1")
-        .get(job.batch_id);
-      if (!pending) {
-        const latest = this.store.batch(job.batch_id);
-        if (latest.state !== 'on_hold') {
-          const memberIds = new Set(
-            (
-              this.store.db
-                .prepare('SELECT record_id FROM batch_records WHERE batch_id=?')
-                .all(job.batch_id) as any[]
-            ).map((r) => r.record_id),
-          );
-          const allDone =
-            latest.counts.rejected === 0 &&
-            this.store
-              .list()
-              .filter((r) => memberIds.has(r.recordId))
-              .every((r) => ['reconciled', 'withdrawn'].includes(r.state));
-          latest.state = allDone ? 'completed' : 'ready';
-          this.store.putBatch(latest);
-        }
-      }
+      // A step that has now succeeded no longer needs anyone's attention.
+      for (const e of this.store
+        .exceptions()
+        .filter(
+          (e) =>
+            e.recordId === job.record_id &&
+            e.status === 'open' &&
+            e.signature.startsWith('pipeline:'),
+        ))
+        this.store.updateException({ ...e, status: 'resolved' });
+      await this.settleBatch(job.batch_id);
       this.changed();
       return true;
     } catch (error) {
       const e = error as PlatformError,
+        code = e.code ?? 'SYSTEM',
         attempts = job.attempts + 1,
-        transient = ['SQLITE_BUSY', 'TRANSIENT'].includes(e.code),
+        transient = ['SQLITE_BUSY', 'TRANSIENT'].includes(code),
         retry = transient && attempts <= this.operations.retrySeconds.length;
+      const errorClass = transient
+        ? 'transient'
+        : error instanceof CbsRejection || error instanceof PipelineError
+          ? error.errorClass
+          : 'system';
+      const fieldPath =
+        error instanceof CbsRejection || error instanceof PipelineError
+          ? error.fieldPath
+          : undefined;
       if (!retry && leaseToken) {
         const loaded = this.store.load(job.record_id);
         const states: State[] =
@@ -705,64 +815,62 @@ export class MigrationService {
             states,
           );
         }
+        this.store.release(job.record_id, leaseToken, worker);
+        leaseToken = undefined;
       }
+      // Tier 1 for a CBS rejection: apply the approved playbook fix and send the record round again.
+      if (!retry && error instanceof CbsRejection && this.playbookEntry('load', code))
+        try {
+          const fixed = this.applyPlaybook(job.record_id, code, worker, 'load');
+          this.store.db
+            .prepare('UPDATE jobs SET status=?,attempts=0,available=?,last_error=? WHERE id=?')
+            .run(fixed.state === 'cbs_ready' ? 'queued' : 'failed', this.store.now(), code, job.id);
+          this.store.trace(
+            job.record_id,
+            worker,
+            'triage',
+            fixed.state === 'cbs_ready' ? 'auto_applied' : 'routed_to_ops',
+            { attempt: attempts },
+            { batchId: job.batch_id, errorCode: code, errorClass, tier: 1 },
+          );
+          await this.settleBatch(job.batch_id);
+          this.changed();
+          return true;
+        } catch (fixError) {
+          if (!(fixError instanceof PlatformError)) throw fixError;
+        }
+      // Data faults go to an operator (LLM steering is disabled); mapping and system faults to
+      // engineering.
+      const tier = retry ? 0 : errorClass === 'data' ? 3 : 4;
       this.store.db
         .prepare('UPDATE jobs SET status=?,attempts=?,available=?,last_error=? WHERE id=?')
         .run(
           retry ? 'queued' : 'failed',
           attempts,
           this.store.now() + (this.operations.retrySeconds[attempts - 1] ?? 256) * 1000,
-          e.code ?? 'SYSTEM',
+          code,
           job.id,
         );
       this.store.trace(
         job.record_id,
         worker,
         'triage',
-        retry ? 'retry_scheduled' : 'engineering_review',
-        { attempt: attempts },
-        {
-          errorCode: e.code ?? 'SYSTEM',
-          errorClass: transient ? 'transient' : 'system',
-          tier: retry ? 0 : 4,
-        },
+        retry ? 'retry_scheduled' : tier === 3 ? 'routed_to_ops' : 'engineering_review',
+        { attempt: attempts, message: e.message },
+        { batchId: job.batch_id, errorCode: code, errorClass, tier },
       );
       this.store.exception({
         recordId: job.record_id,
         batchId: job.batch_id,
-        code: e.code ?? 'SYSTEM',
-        errorClass: transient ? 'transient' : 'system',
-        tier: retry ? 0 : 4,
+        code,
+        errorClass,
+        tier,
         message: e.message,
-        fields: [],
-        signature: `pipeline:${e.code ?? 'SYSTEM'}`,
+        fields: fieldPath ? [fieldPath] : [],
+        signature: `pipeline:${code}`,
       });
-      const unique = new Set(
-        this.store
-          .exceptions()
-          .filter(
-            (x) => x.batchId === job.batch_id && x.signature === `pipeline:${e.code ?? 'SYSTEM'}`,
-          )
-          .map((x) => x.recordId),
-      );
-      if (
-        !retry &&
-        (e.code === 'CONTROL_TOTAL_MISMATCH' ||
-          unique.size >= this.operations.circuitCount ||
-          unique.size / Math.max(batch.counts.source, 1) >= this.operations.circuitFraction)
-      ) {
-        batch.state = 'on_hold';
-        batch.reason = `Circuit breaker: ${e.code ?? 'SYSTEM'}`;
-        this.store.putBatch(batch);
-        this.store.trace(
-          `batch:${batch.id}`,
-          worker,
-          'triage',
-          'circuit_open',
-          { signature: e.code, affected: unique.size },
-          { batchId: batch.id, tier: 4 },
-        );
-      }
+      if (!retry) this.checkCircuit(this.store.batch(job.batch_id), code);
+      await this.settleBatch(job.batch_id);
       this.changed();
       return true;
     } finally {
@@ -771,6 +879,249 @@ export class MigrationService {
           this.store.release(job.record_id, leaseToken, worker);
         } catch {}
     }
+  }
+  private output(recordId: string) {
+    const output = this.store.db
+      .prepare('SELECT * FROM outputs WHERE record_id=?')
+      .get(recordId) as any;
+    if (!output) throw new PipelineError('OUTPUT_MISSING', 'Exported output not found', 'system');
+    return output;
+  }
+  // Locates the first loaded value that differs and maps its column back to the record field.
+  private firstDifference(expected: Data, receipt: Data) {
+    const want = asText(expected),
+      got = asText(receipt);
+    for (const file of new Set([...Object.keys(want), ...Object.keys(got)])) {
+      const mapping = this.pack.mappings.find((m) => m.output === file);
+      const a = want[file] ?? [],
+        b = got[file] ?? [];
+      if (!Array.isArray(a) || !Array.isArray(b))
+        return { label: `${file} format`, path: undefined };
+      if (a.length !== b.length)
+        return { label: `${file} row count`, path: mapping?.row_source ?? undefined };
+      for (let row = 0; row < a.length; row++)
+        for (const column of new Set([...Object.keys(a[row]), ...Object.keys(b[row])]))
+          if (a[row][column] !== b[row][column]) {
+            const from = mapping?.columns.find((c) => c.name === column)?.from;
+            return {
+              label: `${file} row ${row + 1} column ${column}`,
+              path:
+                !from || from === '$record.recordId'
+                  ? undefined
+                  : mapping?.row_source
+                    ? `${mapping.row_source}[${row}].${from}`
+                    : from,
+            };
+          }
+    }
+    return undefined;
+  }
+  // Same signature across many records in one batch run means a mapping or rule fault (8.4).
+  private checkCircuit(batch: Batch, code: string) {
+    if (batch.state === 'on_hold') return;
+    const affected = (
+      this.store.db
+        .prepare(
+          "SELECT COUNT(DISTINCT record_id) AS n FROM trace WHERE batch_id=? AND json_extract(body,'$.step')='triage' AND json_extract(body,'$.errorCode')=? AND json_extract(body,'$.decision') IN ('engineering_review','routed_to_ops') AND json_extract(body,'$.at')>=?",
+        )
+        .get(batch.id, code, batch.runStartedAt ?? '') as any
+    ).n as number;
+    if (
+      code === 'CONTROL_TOTAL_MISMATCH' ||
+      affected >= this.operations.circuitCount ||
+      affected / Math.max(batch.counts.source, 1) >= this.operations.circuitFraction
+    ) {
+      const examples = this.store
+        .traces({ batchId: batch.id, errorCode: code })
+        .slice(0, 3)
+        .map((t) => t.eventId);
+      batch.state = 'on_hold';
+      batch.reason = `Circuit breaker: ${code}`;
+      this.store.putBatch(batch);
+      this.store.trace(
+        `batch:${batch.id}`,
+        worker,
+        'triage',
+        'circuit_open',
+        { signature: code, affected, examples },
+        { batchId: batch.id, errorCode: code, errorClass: 'system', tier: 4 },
+      );
+    }
+  }
+  // Recomputes batch status whenever a job finishes, successfully or not. A finished batch also
+  // checks CBS counts against the export totals (WF-04 step 4).
+  async settleBatch(batchId: string) {
+    const pending = this.store.db
+      .prepare("SELECT 1 FROM jobs WHERE batch_id=? AND status IN ('queued','running') LIMIT 1")
+      .get(batchId);
+    const batch = this.store.batch(batchId);
+    if (pending || batch.state === 'on_hold') return;
+    const members = this.store.list().filter((r) => this.members(batchId).has(r.recordId));
+    const allDone =
+      batch.counts.rejected === 0 &&
+      members.every((r) => ['reconciled', 'withdrawn'].includes(r.state));
+    batch.state = 'ready';
+    if (allDone) {
+      const totals = { export: { customers: 0, accounts: 0 }, cbs: { customers: 0, accounts: 0 } };
+      for (const record of members.filter((r) => r.state === 'reconciled')) {
+        const output = this.store.db
+          .prepare('SELECT digest,expected FROM outputs WHERE record_id=?')
+          .get(record.recordId) as any;
+        if (!output) continue;
+        const expected = JSON.parse(output.expected),
+          receipt = await this.cbs.readback(`${record.recordId}:${output.digest}`);
+        totals.export.customers += expected['Customer_Create.csv']?.length ?? 0;
+        totals.export.accounts += expected['Account_Register.csv']?.length ?? 0;
+        totals.cbs.customers += receipt?.['Customer_Create.csv']?.length ?? 0;
+        totals.cbs.accounts += receipt?.['Account_Register.csv']?.length ?? 0;
+      }
+      if (same(totals.export, totals.cbs)) batch.state = 'completed';
+      else {
+        batch.state = 'on_hold';
+        batch.reason = 'CONTROL_TOTAL_MISMATCH';
+        this.store.trace(
+          `batch:${batchId}`,
+          worker,
+          'reconcile',
+          'control_totals_rejected',
+          totals,
+          { batchId, errorCode: 'CONTROL_TOTAL_MISMATCH', errorClass: 'system', tier: 4 },
+        );
+      }
+    }
+    this.store.putBatch(batch);
+  }
+  members(batchId: string) {
+    return new Set(
+      (
+        this.store.db
+          .prepare('SELECT record_id FROM batch_records WHERE batch_id=?')
+          .all(batchId) as any[]
+      ).map((r) => r.record_id as string),
+    );
+  }
+  private latestJob(recordId: string) {
+    return this.store.db
+      .prepare('SELECT id,batch_id FROM jobs WHERE record_id=? ORDER BY rowid DESC LIMIT 1')
+      .get(recordId) as { id: string; batch_id: string } | undefined;
+  }
+  requeue(recordId: string) {
+    const job = this.latestJob(recordId);
+    if (job)
+      this.store.db
+        .prepare("UPDATE jobs SET status='queued',attempts=0,available=? WHERE id=?")
+        .run(this.store.now(), job.id);
+  }
+  // WF-08: a reviewer approves or rejects a pending amendment.
+  async decideAmendment(
+    id: string,
+    decision: 'approve' | 'reject',
+    leaseToken: string,
+    actor: Actor,
+  ) {
+    const loaded = this.store.load(id);
+    this.store.ownsLease(id, leaseToken, actor);
+    if (loaded.record.state !== 'amendment_pending' || !loaded.record.pendingData)
+      throw new PlatformError('NO_AMENDMENT', 'No amendment is pending');
+    if (loaded.record.conflicts.length)
+      throw new PlatformError(
+        'REVIEW_REQUIRED',
+        'Resolve amendment conflicts through a reviewed mapping change before approval',
+      );
+    const record = loaded.record,
+      from = record.amendmentFrom ?? 'reconciled';
+    if (decision === 'approve') {
+      const next = { ...record, data: record.pendingData! };
+      if (!evaluate(this.pack, next.data).gates.cbs.open)
+        throw new PlatformError('GATE_CLOSED', 'Amended data must pass both gates');
+      const bundle = await renderBundle(this.pack, next),
+        key = `amendment:${id}:${bundle.digest}`;
+      await this.cbs.deliver(key, id, bundle.expected, this.store.timestamp());
+      const receipt = await this.cbs.readback(key);
+      if (!receipt || this.firstDifference(bundle.expected, receipt))
+        throw new PlatformError('RECONCILIATION_MISMATCH', 'Amendment readback mismatch');
+      record.data = record.pendingData!;
+      record.baseline = record.pendingBaseline ?? record.baseline;
+      record.provenance = record.pendingProvenance ?? record.provenance;
+      record.state = 'reconciled';
+      this.store.db
+        .prepare('INSERT INTO amendment_outputs VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING')
+        .run(`${id}:${bundle.digest}`, id, bundle.bytes, bundle.digest);
+    } else record.state = from;
+    delete record.pendingData;
+    delete record.pendingBaseline;
+    delete record.pendingProvenance;
+    delete record.amendmentFrom;
+    this.store.save(
+      record,
+      { ifMatch: loaded.etag, leaseToken },
+      actor,
+      'reconcile',
+      `amendment_${decision}`,
+    );
+    // A rejected amendment on an unfinished delivery resumes that delivery.
+    if (decision === 'reject' && from !== 'reconciled') this.requeue(id);
+    this.store.release(id, leaseToken, actor);
+    const job = this.latestJob(id);
+    if (job) await this.settleBatch(job.batch_id);
+    this.changed();
+  }
+  // A reviewer's scope decision on a customer missing from a full snapshot.
+  decideScope(
+    id: string,
+    decision: 'keep' | 'withdraw',
+    reason: string,
+    leaseToken: string,
+    actor: Actor,
+  ) {
+    const loaded = this.store.load(id);
+    this.store.ownsLease(id, leaseToken, actor);
+    if (
+      ['loaded', 'reconciled', 'exported', 'amendment_pending'].includes(loaded.record.state) &&
+      decision === 'withdraw'
+    )
+      throw new PlatformError(
+        'FROZEN_RECORD',
+        'Loaded records require a bank-approved reversal workflow',
+        409,
+      );
+    loaded.record.missingFromRefresh = false;
+    if (decision === 'withdraw') loaded.record.state = 'withdrawn';
+    const saved = this.store.save(
+      loaded.record,
+      { ifMatch: loaded.etag, leaseToken },
+      actor,
+      'admin',
+      `scope_${decision}`,
+    );
+    this.store.trace(id, actor, 'admin', 'scope_review', { reason });
+    // Withdrawn customers need no further work. Kept customers only lose the scope exception;
+    // their validation failures stay in the queue.
+    if (decision === 'withdraw') this.store.resolve(id);
+    else this.updateExceptions(saved.record);
+    this.store.release(id, leaseToken, actor);
+    this.changed();
+  }
+  // Combined Bank 2 CBS load files for every delivered record in a batch.
+  exportBatch(batchId: string) {
+    this.store.batch(batchId);
+    const members = this.members(batchId);
+    const deliveries = this.store
+      .list()
+      .filter((r) => members.has(r.recordId) && ['loaded', 'reconciled'].includes(r.state))
+      .map((r) => {
+        const output = this.store.db
+          .prepare('SELECT expected FROM outputs WHERE record_id=?')
+          .get(r.recordId) as any;
+        return { recordId: r.recordId, expected: output ? JSON.parse(output.expected) : {} };
+      });
+    if (!deliveries.length)
+      throw new PlatformError(
+        'NOTHING_DELIVERED',
+        'No records in this batch have been loaded',
+        404,
+      );
+    return batchLoadFiles(this.pack, deliveries);
   }
   dashboard() {
     const records = this.store.list(),
@@ -795,7 +1146,9 @@ export class MigrationService {
       agedExceptions: exceptions.filter(
         (e) => this.store.now() - Date.parse(e.createdAt) > 172800000,
       ).length,
-      defects: exceptions.filter((e) => e.code === 'RECONCILIATION_MISMATCH').length,
+      defects: exceptions.filter((e) =>
+        ['RECONCILIATION_MISMATCH', 'BASELINE_DRIFT'].includes(e.code),
+      ).length,
       batches: this.store.batches().length,
     };
   }

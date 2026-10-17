@@ -1,0 +1,11 @@
+CUST_ID,CUST_LEGAL_NAME,CUST_TYPE,CUST_ABN,EMAIL,ADDRESS,SUBURB,STATE,POSTCODE,COUNTRY,TAX_RESIDENCY,FOREIGN_TAX
+B1-100001,Harbourview Logistics Pty Ltd,company,51 000 000 680,accounts@harbourview.example,12 Wharf Road,Pyrmont,NSW,2009,AU,AU,N
+B1-100002,Kowalski Family Trust,trust,52 000 000 080,trustee@kowalski.example,8 Banksia Crescent,Hawthorn,VIC,3122,AU,AU,N
+B1-100003,Mia Chen,soleTrader,53 000 000 770,mia@chendesign.example,44 Ann Street,Brisbane City,QLD,4000,AU,AU,N
+B1-100004,"O'Brien, Kelly & Co Pty Ltd",company,54 000 000 170,finance@obrienkelly.example,"Level 3, 100 King William Street",Adelaide,SA,5000,AU,AU,N
+B1-100005,Top End Fisheries Pty Ltd,company,55 000 000 007,office@topendfish.example,3 Frances Bay Drive,Darwin,NT,800,AU,AU,N
+B1-100006,Zoë Müller,soleTrader,56 000 000 260,zoe@mullerphysio.example,27 Salamanca Place,Hobart,TAS,7000,AU,GB,Y
+B1-100007,Patel & Singh Partners,partnership,57 000 000 016,admin@patelsingh.example,9 Hay Street,Perth,WA,6000,AU,AU,N
+B1-100008,Capital Region Builders Pty Ltd,company,58 000 000 350,,15 Northbourne Avenue,Braddon,ACT,2612,AU,AU,N
+B1-100009,Nguyen Bakery Pty Ltd,company,59 000 000 025,orders@nguyenbakery.example,210 Victoria Street,Richmond,VIC,3121,AU,AU,N
+B1-100010,Ruth Okafor,soleTrader,61 000 000 002,ruth@okaforconsulting.example,5 Marine Parade,Coolangatta,QLD,4225,AU,AU,N

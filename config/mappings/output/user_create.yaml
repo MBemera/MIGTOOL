@@ -13,6 +13,11 @@
       "from": "name"
     },
     {
+      "name": "DATE_OF_BIRTH",
+      "from": "dateOfBirth",
+      "transform": "date:DD/MM/YYYY"
+    },
+    {
       "name": "EMAIL",
       "from": "email"
     },

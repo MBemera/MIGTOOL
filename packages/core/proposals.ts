@@ -83,7 +83,12 @@ export function validateProposal(
         'DECLARED_FIELD',
         'Automated proposals may not set customer declarations',
       );
-    if (pack.protected.protected.includes(normalisePath(path))) protectedChange = true;
+    if (
+      pack.protected.protected.some(
+        (p) => normalisePath(path) === p || normalisePath(path).startsWith(`${p}.`),
+      )
+    )
+      protectedChange = true;
     set(next, path, op.value);
   }
   const before = evaluate(pack, data),
