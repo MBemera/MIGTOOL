@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import {
   type Actor,
   type Batch,
@@ -15,7 +16,7 @@ import {
 import { evaluate, transition, validationStates } from '../core/engine';
 import { ingestRow, leafValues, merge, transform, assertEditableData } from '../core/mapping';
 import { validateProposal } from '../core/proposals';
-import { Store } from '../adapters/store';
+import { Store, type StoredOutput } from '../adapters/store';
 import { hash } from '../adapters/config';
 import { renderBundle } from '../adapters/renderers';
 import {
@@ -26,7 +27,7 @@ import {
   batchLoadFiles,
 } from '../adapters/cbs';
 import { type CsvPackage, csvPackageToExtract } from '../adapters/csv-extract';
-import { type Holder, SharePointAuthority } from '../adapters/sharepoint';
+import { type Holder, type SharedBatch, SharePointAuthority } from '../adapters/sharepoint';
 
 // A pipeline failure with its triage class and the field it points at (section 8.1).
 class PipelineError extends PlatformError {
@@ -52,6 +53,7 @@ export const worker: Actor = { id: 'pipeline-worker', kind: 'system' };
 const pipeline: Holder = { id: worker.id, name: 'MIGTOOL pipeline', kind: 'worker' };
 export class MigrationService {
   operations: { retrySeconds: number[]; circuitCount: number; circuitFraction: number };
+  private batchContext = new AsyncLocalStorage<ReadonlySet<string>>();
   constructor(
     public store: Store,
     public pack: Pack,
@@ -75,24 +77,36 @@ export class MigrationService {
       local = this.store.exists(id) ? this.store.load(id).record : undefined;
     let published = state?.published_version ?? 0,
       traceSeq = state?.trace_seq ?? 0;
-    if (result.file && (!local || state?.etag !== result.file.eTag)) {
-      const remote = JSON.parse(result.file.body) as Envelope;
-      // SharePoint changed while this server held unpublished changes: SharePoint wins and the
-      // local copy is kept for review, never silently dropped.
-      if (local && local.version > published) this.remoteConflict(local, 'changed_in_sharepoint');
-      this.store.replaceFromRemote(remote, worker, { eTag: result.file.eTag });
-      this.updateExceptions(remote);
-      published = remote.version;
-      traceSeq = this.store.traceSeq(id);
+    try {
+      if (result.file && (!local || state?.etag !== result.file.eTag)) {
+        const remote = JSON.parse(result.file.body) as Envelope;
+        // SharePoint changed while this server held unpublished changes: SharePoint wins and the
+        // local copy is kept for review, never silently dropped.
+        if (!local || local.version <= published || remote.version !== published) {
+          const output = await this.sharedOutput(remote);
+          if (local && local.version > published)
+            this.remoteConflict(local, 'changed_in_sharepoint');
+          this.store.transaction(() => {
+            this.store.replaceFromRemote(remote, worker, { eTag: result.file!.eTag });
+            if (output) this.store.putOutput(id, output);
+            this.updateExceptions(remote);
+          });
+          published = remote.version;
+          traceSeq = this.store.traceSeq(id);
+        }
+      }
+      this.store.setRemote(id, {
+        etag: result.file?.eTag ?? null,
+        token: result.token,
+        holder_kind: holder.kind,
+        published_version: published,
+        trace_seq: traceSeq,
+        error: null,
+      });
+    } catch (error) {
+      await this.authority.abandon(id, result.token).catch(() => {});
+      throw error;
     }
-    this.store.setRemote(id, {
-      etag: result.file?.eTag ?? null,
-      token: result.token,
-      holder_kind: holder.kind,
-      published_version: published,
-      trace_seq: traceSeq,
-      error: null,
-    });
     return undefined;
   }
   // Ends a check-out: publishes the local copy if it changed, otherwise undoes the check-out.
@@ -117,6 +131,16 @@ export class MigrationService {
     }
     this.store.setRemote(id, { pending: 1 });
     try {
+      if (local.delivery) {
+        const output = this.output(id);
+        await this.authority.putOutput(id, {
+          recordVersion: output.record_version,
+          key: local.delivery.key,
+          digest: output.digest,
+          bytes: Buffer.from(output.bytes).toString('base64'),
+          expected: output.expected,
+        });
+      }
       const etag = await this.authority.publish(
         id,
         state.token,
@@ -209,15 +233,164 @@ export class MigrationService {
   }
   // Retries publishes that failed or waited, from the worker loop.
   async publishPending() {
+    if (this.authority)
+      for (const batch of this.store.batches())
+        if (!this.store.remote(`batch:${batch.id}`))
+          this.store.setRemote(`batch:${batch.id}`, { pending: 1 });
     for (const id of this.store.pendingRemote())
-      if (this.store.remote(id)?.token) await this.finishRemote(id);
+      if (id.startsWith('batch:')) {
+        if (this.store.remote(id)?.token) await this.finishBatchRemote(id.slice(6));
+        else await this.withBatch(id.slice(6), () => {});
+      } else if (this.store.remote(id)?.token) await this.finishRemote(id);
       else await this.publishLocalChanges([id]);
+  }
+  private async sharedOutput(record: Envelope): Promise<StoredOutput | undefined> {
+    if (!this.authority || !record.delivery) return undefined;
+    const existing = this.store.output(record.recordId);
+    if (existing?.digest === record.delivery.digest) return existing;
+    const output = await this.authority.readOutput(record.recordId, record.delivery.digest),
+      bytes = Buffer.from(output.bytes, 'base64');
+    if (
+      output.key !== record.delivery.key ||
+      output.digest !== record.delivery.digest ||
+      hash(bytes) !== output.digest
+    )
+      throw new PlatformError('OUTPUT_MISMATCH', 'Shared delivery output failed its checksum', 409);
+    return {
+      record_version: output.recordVersion,
+      bytes,
+      digest: output.digest,
+      expected: output.expected,
+    };
+  }
+  private async finishBatchRemote(id: string) {
+    const key = `batch:${id}`,
+      state = this.store.remote(key);
+    if (!this.authority || !state?.token) return;
+    const batch = this.store.batch(id);
+    try {
+      let etag = state.etag;
+      if ((batch.version ?? 0) > state.published_version) {
+        this.store.setRemote(key, { pending: 1 });
+        etag = await this.authority.publishBatch(
+          id,
+          state.token,
+          { batch, members: [...this.members(id)].sort() },
+          state.etag ?? undefined,
+        );
+      } else await this.authority.abandonBatch(id, state.token);
+      this.store.setRemote(key, {
+        etag,
+        token: null,
+        holder_kind: null,
+        published_version: batch.version ?? 0,
+        pending: 0,
+        error: null,
+      });
+    } catch (error) {
+      const code = (error as PlatformError).code ?? 'SYSTEM';
+      this.store.setRemote(key, {
+        pending: 1,
+        error: code,
+        ...(['SHAREPOINT_STALE', 'SHAREPOINT_LEASE_LOST'].includes(code)
+          ? { token: null, holder_kind: null }
+          : {}),
+      });
+      throw error;
+    }
+  }
+  // Batch commands share a checkout too, so pause, release and settlement cannot overwrite
+  // another server's decision. Async context limits re-entry to the operation holding it.
+  async withBatch<T>(id: string, fn: () => T | Promise<T>): Promise<T> {
+    if (!this.authority || this.batchContext.getStore()?.has(id)) return fn();
+    const key = `batch:${id}`;
+    let previous = this.store.remote(key);
+    if (previous?.pending && previous.token) {
+      try {
+        await this.finishBatchRemote(id);
+      } catch (error) {
+        if (
+          !(
+            error instanceof PlatformError &&
+            ['SHAREPOINT_STALE', 'SHAREPOINT_LEASE_LOST'].includes(error.code)
+          )
+        )
+          throw error;
+      }
+      previous = this.store.remote(key);
+    }
+    const checkedOut = await this.authority.checkOutBatch(id);
+    if ('heldBy' in checkedOut)
+      throw new PlatformError('LEASE_HELD', `Batch is in use by ${checkedOut.heldBy}`, 409);
+    try {
+      if (checkedOut.file) {
+        const value = JSON.parse(checkedOut.file.body) as SharedBatch;
+        if (value.batch.id !== id)
+          throw new PlatformError('BATCH_INVALID', 'Shared batch ID differs');
+        if (previous?.pending && !previous.token) {
+          const local = { batch: this.store.batch(id), members: [...this.members(id)].sort() };
+          if ((value.batch.version ?? 0) !== previous.published_version && !same(value, local)) {
+            this.store.trace(
+              key,
+              worker,
+              'admin',
+              'shared_batch_conflict',
+              { local, shared: value },
+              { batchId: id, errorCode: 'SHAREPOINT_STALE' },
+            );
+            this.store.replaceBatch(value.batch, value.members);
+            this.store.setRemote(key, {
+              pending: 0,
+              token: null,
+              holder_kind: null,
+              error: 'SHAREPOINT_STALE',
+              published_version: value.batch.version ?? 0,
+            });
+            throw new PlatformError(
+              'SHAREPOINT_STALE',
+              'Shared batch changed before publication',
+              409,
+            );
+          }
+        } else this.store.replaceBatch(value.batch, value.members);
+      }
+      const batch = this.store.batch(id);
+      if (!checkedOut.file && !batch.version) this.store.putBatch(batch);
+      this.store.setRemote(key, {
+        token: checkedOut.token,
+        etag: checkedOut.file?.eTag ?? null,
+        holder_kind: 'worker',
+        published_version: previous?.pending
+          ? previous.published_version
+          : checkedOut.file
+            ? ((JSON.parse(checkedOut.file.body) as SharedBatch).batch.version ?? 0)
+            : 0,
+      });
+      return await this.batchContext.run(
+        new Set([...(this.batchContext.getStore() ?? []), id]),
+        async () => {
+          try {
+            await this.syncFromSharePoint();
+            return await fn();
+          } finally {
+            await this.finishBatchRemote(batch.id);
+          }
+        },
+      );
+    } catch (error) {
+      if (!this.store.remote(key)?.pending) {
+        await this.authority.abandonBatch(id, checkedOut.token).catch(() => {});
+        this.store.setRemote(key, { token: null, holder_kind: null });
+      }
+      throw error;
+    }
   }
   // Brings local copies up to date with SharePoint for records nobody has checked out.
   async syncFromSharePoint(): Promise<number> {
     if (!this.authority) return 0;
-    const { files, leased } = await this.authority.snapshot();
-    let pulled = 0;
+    const { files, leased, batches } = await this.authority.snapshot();
+    let pulled = 0,
+      batchChanged = false;
     for (const file of files) {
       const id = file.recordId,
         state = this.store.remote(id);
@@ -226,16 +399,37 @@ export class MigrationService {
       const local = this.store.exists(id) ? this.store.load(id).record : undefined;
       if (local && state && local.version > state.published_version) continue;
       const remote = JSON.parse(await this.authority.read(file.id)) as Envelope;
-      this.store.replaceFromRemote(remote, worker, { eTag: file.eTag });
-      this.store.setRemote(id, {
-        etag: file.eTag,
-        published_version: remote.version,
-        trace_seq: this.store.traceSeq(id),
+      const output = await this.sharedOutput(remote);
+      this.store.transaction(() => {
+        this.store.replaceFromRemote(remote, worker, { eTag: file.eTag });
+        if (output) this.store.putOutput(id, output);
+        this.store.setRemote(id, {
+          etag: file.eTag,
+          published_version: remote.version,
+          trace_seq: this.store.traceSeq(id),
+        });
+        this.updateExceptions(remote);
       });
-      this.updateExceptions(remote);
       pulled++;
     }
-    if (pulled) this.changed();
+    for (const file of batches) {
+      const key = `batch:${file.batchId}`,
+        state = this.store.remote(key);
+      if (leased.has(key) || state?.token || state?.pending || state?.etag === file.eTag) continue;
+      const value = JSON.parse(await this.authority.read(file.id)) as SharedBatch;
+      if (value.batch.id !== file.batchId)
+        throw new PlatformError('BATCH_INVALID', 'Shared batch ID differs');
+      this.store.transaction(() => {
+        this.store.replaceBatch(value.batch, value.members);
+        this.store.setRemote(key, {
+          etag: file.eTag,
+          published_version: value.batch.version ?? 0,
+          error: null,
+        });
+      });
+      batchChanged = true;
+    }
+    if (pulled || batchChanged) this.changed();
     return pulled;
   }
   validated(record: Envelope): State[] {
@@ -369,6 +563,7 @@ export class MigrationService {
         .filter((r) => r.version !== before.get(r.recordId))
         .map((r) => r.recordId),
     );
+    await this.withBatch(batch.id, () => {});
     return batch;
   }
   private executeImport(
@@ -386,7 +581,14 @@ export class MigrationService {
       );
     try {
       return this.store.transaction(() => {
+        const versions = new Map(this.store.list().map((r) => [r.recordId, r.version]));
         const result = this.ingestSync(input, actor, runId, held);
+        if (this.authority) {
+          for (const record of this.store.list())
+            if (record.version !== versions.get(record.recordId))
+              this.store.setRemote(record.recordId, { pending: 1 });
+          this.store.setRemote(`batch:${result.id}`, { pending: 1 });
+        }
         this.store.db.prepare("UPDATE ingest_runs SET status='completed' WHERE id=?").run(runId);
         return result;
       });
@@ -788,7 +990,10 @@ export class MigrationService {
         );
       }
   }
-  releaseBatch(id: string, actor: Actor) {
+  async releaseBatch(id: string, actor: Actor) {
+    return this.withBatch(id, () => this.releaseBatchLocal(id, actor));
+  }
+  private releaseBatchLocal(id: string, actor: Actor) {
     const batch = this.store.batch(id);
     if (batch.state === 'on_hold')
       throw new PlatformError('BATCH_ON_HOLD', 'Resume the batch before releasing it', 409);
@@ -829,7 +1034,10 @@ export class MigrationService {
     this.changed();
     return { queued };
   }
-  batchAction(id: string, action: 'pause' | 'resume', reason: string, actor: Actor) {
+  async batchAction(id: string, action: 'pause' | 'resume', reason: string, actor: Actor) {
+    return this.withBatch(id, () => this.batchActionLocal(id, action, reason, actor));
+  }
+  private batchActionLocal(id: string, action: 'pause' | 'resume', reason: string, actor: Actor) {
     const batch = this.store.batch(id);
     if (!reason.trim()) throw new PlatformError('REASON_REQUIRED', 'A reason is required');
     if (action === 'resume' && batch.reason === 'CONTROL_TOTAL_MISMATCH')
@@ -875,25 +1083,35 @@ export class MigrationService {
       return row;
     });
     if (!job) return false;
-    const batch = this.store.batch(job.batch_id);
-    if (batch.state === 'on_hold') {
-      this.store.db
-        .prepare("UPDATE jobs SET status='queued',available=? WHERE id=?")
-        .run(this.store.now() + 1000, job.id);
-      return false;
-    }
-    if (!this.authority) return this.runJob(job, batch);
-    const held = await this.checkOutRemote(job.record_id, pipeline);
-    if (held) {
-      this.store.db
-        .prepare("UPDATE jobs SET status='queued',available=? WHERE id=?")
-        .run(this.store.now() + 1000, job.id);
-      return false;
-    }
     try {
-      return await this.runJob(job, batch);
-    } finally {
-      await this.finishRemote(job.record_id);
+      return await this.withBatch(job.batch_id, async () => {
+        const batch = this.store.batch(job.batch_id);
+        if (batch.state === 'on_hold') {
+          this.store.db
+            .prepare("UPDATE jobs SET status='queued',available=? WHERE id=?")
+            .run(this.store.now() + 1000, job.id);
+          return false;
+        }
+        if (!this.authority) return this.runJob(job, batch);
+        const held = await this.checkOutRemote(job.record_id, pipeline);
+        if (held) {
+          this.store.db
+            .prepare("UPDATE jobs SET status='queued',available=? WHERE id=?")
+            .run(this.store.now() + 1000, job.id);
+          return false;
+        }
+        try {
+          return await this.runJob(job, batch);
+        } finally {
+          await this.finishRemote(job.record_id);
+        }
+      });
+    } catch (error) {
+      this.store.db
+        .prepare("UPDATE jobs SET status='queued',available=? WHERE id=? AND status='running'")
+        .run(this.store.now() + 1000, job.id);
+      if (error instanceof PlatformError && error.code === 'LEASE_HELD') return false;
+      throw error;
     }
   }
   private async runJob(job: any, batch: Batch): Promise<boolean> {
@@ -925,18 +1143,16 @@ export class MigrationService {
         throw new PlatformError('REVIEW_REQUIRED', 'Resolve conflicts and scope before delivery');
       if (record.state === 'cbs_ready') {
         const output = await renderBundle(this.pack, record);
-        this.store.db
-          .prepare(
-            'INSERT INTO outputs VALUES(?,?,?,?,?) ON CONFLICT(record_id) DO UPDATE SET record_version=excluded.record_version,bytes=excluded.bytes,digest=excluded.digest,expected=excluded.expected',
-          )
-          .run(
-            record.recordId,
-            record.version,
-            output.bytes,
-            output.digest,
-            JSON.stringify(output.expected),
-          );
-        save('export', 'exported', 'bundle_created');
+        this.store.transaction(() => {
+          this.store.putOutput(record.recordId, {
+            record_version: record.version,
+            bytes: output.bytes,
+            digest: output.digest,
+            expected: JSON.stringify(output.expected),
+          });
+          record.delivery = { key: `${record.recordId}:${output.digest}`, digest: output.digest };
+          save('export', 'exported', 'bundle_created');
+        });
         this.store.trace(
           record.recordId,
           worker,
@@ -959,7 +1175,7 @@ export class MigrationService {
             'system',
           );
         await this.cbs.deliver(
-          `${record.recordId}:${output.digest}`,
+          record.delivery?.key ?? `${record.recordId}:${output.digest}`,
           record.recordId,
           expected,
           this.store.timestamp(),
@@ -968,7 +1184,9 @@ export class MigrationService {
       }
       if (record.state === 'loaded') {
         const output = this.output(record.recordId);
-        const receipt = await this.cbs.readback(`${record.recordId}:${output.digest}`);
+        const receipt = await this.cbs.readback(
+          record.delivery?.key ?? `${record.recordId}:${output.digest}`,
+        );
         if (!receipt)
           throw new PipelineError('RECONCILIATION_MISMATCH', 'CBS holds no load', 'system');
         const difference = this.firstDifference(JSON.parse(output.expected), receipt);
@@ -1103,10 +1321,15 @@ export class MigrationService {
     }
   }
   private output(recordId: string) {
-    const output = this.store.db
-      .prepare('SELECT * FROM outputs WHERE record_id=?')
-      .get(recordId) as any;
+    const output = this.store.output(recordId);
     if (!output) throw new PipelineError('OUTPUT_MISSING', 'Exported output not found', 'system');
+    const digest = this.store.load(recordId).record.delivery?.digest;
+    if (digest && digest !== output.digest)
+      throw new PipelineError(
+        'OUTPUT_MISMATCH',
+        'Delivery output differs from the record',
+        'system',
+      );
     return output;
   }
   // Locates the first loaded value that differs and maps its column back to the record field.
@@ -1173,6 +1396,9 @@ export class MigrationService {
   // Recomputes batch status whenever a job finishes, successfully or not. A finished batch also
   // checks CBS counts against the export totals (WF-04 step 4).
   async settleBatch(batchId: string) {
+    return this.withBatch(batchId, () => this.settleBatchLocal(batchId));
+  }
+  private async settleBatchLocal(batchId: string) {
     const pending = this.store.db
       .prepare("SELECT 1 FROM jobs WHERE batch_id=? AND status IN ('queued','running') LIMIT 1")
       .get(batchId);
@@ -1181,17 +1407,17 @@ export class MigrationService {
     const members = this.store.list().filter((r) => this.members(batchId).has(r.recordId));
     const allDone =
       batch.counts.rejected === 0 &&
+      members.length === this.members(batchId).size &&
       members.every((r) => ['reconciled', 'withdrawn'].includes(r.state));
     batch.state = 'ready';
     if (allDone) {
       const totals = { export: { customers: 0, accounts: 0 }, cbs: { customers: 0, accounts: 0 } };
       for (const record of members.filter((r) => r.state === 'reconciled')) {
-        const output = this.store.db
-          .prepare('SELECT digest,expected FROM outputs WHERE record_id=?')
-          .get(record.recordId) as any;
-        if (!output) continue;
+        const output = this.output(record.recordId);
         const expected = JSON.parse(output.expected),
-          receipt = await this.cbs.readback(`${record.recordId}:${output.digest}`);
+          receipt = await this.cbs.readback(
+            record.delivery?.key ?? `${record.recordId}:${output.digest}`,
+          );
         totals.export.customers += expected['Customer_Create.csv']?.length ?? 0;
         totals.export.accounts += expected['Account_Register.csv']?.length ?? 0;
         totals.cbs.customers += receipt?.['Customer_Create.csv']?.length ?? 0;
@@ -1241,6 +1467,16 @@ export class MigrationService {
     leaseToken: string,
     actor: Actor,
   ) {
+    return this.withBatch(this.store.load(id).record.batchId, () =>
+      this.decideAmendmentLocal(id, decision, leaseToken, actor),
+    );
+  }
+  private async decideAmendmentLocal(
+    id: string,
+    decision: 'approve' | 'reject',
+    leaseToken: string,
+    actor: Actor,
+  ) {
     const loaded = this.store.load(id);
     this.store.ownsLease(id, leaseToken, actor);
     if (loaded.record.state !== 'amendment_pending' || !loaded.record.pendingData)
@@ -1252,6 +1488,7 @@ export class MigrationService {
       );
     const record = loaded.record,
       from = record.amendmentFrom ?? 'reconciled';
+    let approvedOutput: Awaited<ReturnType<typeof renderBundle>> | undefined;
     if (decision === 'approve') {
       const next = { ...record, data: record.pendingData! };
       if (!evaluate(this.pack, next.data).gates.cbs.open)
@@ -1266,21 +1503,38 @@ export class MigrationService {
       record.baseline = record.pendingBaseline ?? record.baseline;
       record.provenance = record.pendingProvenance ?? record.provenance;
       record.state = 'reconciled';
-      this.store.db
-        .prepare('INSERT INTO amendment_outputs VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING')
-        .run(`${id}:${bundle.digest}`, id, bundle.bytes, bundle.digest);
+      record.delivery = { key, digest: bundle.digest };
+      approvedOutput = bundle;
     } else record.state = from;
     delete record.pendingData;
     delete record.pendingBaseline;
     delete record.pendingProvenance;
     delete record.amendmentFrom;
-    this.store.save(
-      record,
-      { ifMatch: loaded.etag, leaseToken },
-      actor,
-      'reconcile',
-      `amendment_${decision}`,
-    );
+    this.store.transaction(() => {
+      this.store.save(
+        record,
+        { ifMatch: loaded.etag, leaseToken },
+        actor,
+        'reconcile',
+        `amendment_${decision}`,
+      );
+      if (approvedOutput) {
+        const previous = this.store.output(id);
+        if (previous)
+          this.store.db
+            .prepare('INSERT INTO amendment_outputs VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING')
+            .run(`${id}:${previous.digest}`, id, previous.bytes, previous.digest);
+        this.store.db
+          .prepare('INSERT INTO amendment_outputs VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING')
+          .run(`${id}:${approvedOutput.digest}`, id, approvedOutput.bytes, approvedOutput.digest);
+        this.store.putOutput(id, {
+          record_version: record.version,
+          bytes: approvedOutput.bytes,
+          digest: approvedOutput.digest,
+          expected: JSON.stringify(approvedOutput.expected),
+        });
+      }
+    });
     // A rejected amendment on an unfinished delivery resumes that delivery.
     if (decision === 'reject' && from !== 'reconciled') this.requeue(id);
     this.store.release(id, leaseToken, actor);
@@ -1332,10 +1586,8 @@ export class MigrationService {
       .list()
       .filter((r) => members.has(r.recordId) && ['loaded', 'reconciled'].includes(r.state))
       .map((r) => {
-        const output = this.store.db
-          .prepare('SELECT expected FROM outputs WHERE record_id=?')
-          .get(r.recordId) as any;
-        return { recordId: r.recordId, expected: output ? JSON.parse(output.expected) : {} };
+        const output = this.output(r.recordId);
+        return { recordId: r.recordId, expected: JSON.parse(output.expected) };
       });
     if (!deliveries.length)
       throw new PlatformError(

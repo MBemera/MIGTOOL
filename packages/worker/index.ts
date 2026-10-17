@@ -1,18 +1,5 @@
-import { loadPack } from '../adapters/config';
-import { Store } from '../adapters/store';
-import { deliveryFor } from '../adapters/cbs';
-import { sharePointFromEnv } from '../adapters/sharepoint';
-import { MigrationService } from './service';
-const pack = loadPack(),
-  databasePath = process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
-  store = new Store(databasePath, pack),
-  service = new MigrationService(
-    store,
-    pack,
-    () => {},
-    deliveryFor(store, databasePath).cbs,
-    sharePointFromEnv(pack),
-  );
+import { openWorkspace } from './runtime';
+const { store, service } = openWorkspace();
 let lastSync = 0;
 let running = false;
 const timer = setInterval(async () => {

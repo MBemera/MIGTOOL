@@ -16,6 +16,8 @@ API checks cover authentication, server-enforced roles, cross-origin rejection, 
 
 Synthetic XFA packet injection, supported Unicode rendering, unsupported-glyph rejection and long-line wrapping have regression coverage. A generated Unicode PDF was rendered and visually inspected. This does not establish compatibility with the bank's actual XFA form.
 
+Review regressions cover approved amendments replacing both downloadable record bundles and combined batch CSVs while retaining earlier bundles, failed amendment readback preserving the previous download, retries after upload/trace/check-in/lease-release failures, real outside edits during a retry, source refresh publishing, SharePoint-aware CLI imports, batch control and output downloads on a second server, pause propagation, concurrent batch commands, expired batch publishers, existing batch upgrade, shared-output checksum rejection and Graph parent-folder creation. The browser suite also approves an amendment and verifies both downloaded CSV outputs. SharePoint scenarios remain simulated rather than tenant acceptance evidence.
+
 ## Performance
 
 An initial local benchmark on Node.js 24.19.0 processed 1,000 synthetic records through ingest, validation and summary/CSV/ZIP export in approximately 10.4 seconds. Largest-record rule evaluation was approximately 4.8 ms p95 in Node. The benchmark uses an in-memory database and excludes live CBS delivery. It is not a browser or production performance certification. Re-run `npm run benchmark` for the current implementation and deployment.

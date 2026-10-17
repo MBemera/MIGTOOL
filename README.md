@@ -95,6 +95,8 @@ Other states:
 3. If they match, the record is reconciled.
 4. **Load files** gives the combined files for the whole batch.
 
+After an amendment is approved and reconciled, **Download bundle** and **Load files** contain the amended values. Earlier bundles are retained for audit.
+
 ### 5. Problems
 
 | Problem                          | What happens                                               |
@@ -129,6 +131,8 @@ Other states:
 ## Working from several machines (SharePoint)
 
 Records live in SharePoint. Each app server keeps a local working copy.
+
+Batch membership and delivery outputs are shared too. An admin can release a batch from another server. Batch controls use their own check-out so a pause or resume is respected before the next job. All workers need access to the same load folder for readback.
 
 ### How it works
 

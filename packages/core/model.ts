@@ -43,6 +43,7 @@ export interface Envelope {
   pendingProvenance?: Record<string, Provenance>;
   missingFromRefresh?: boolean;
   amendmentFrom?: State;
+  delivery?: { key: string; digest: string };
 }
 export type Conflict = { path: string; baseline: unknown; current: unknown; incoming: unknown };
 export type Condition =
@@ -194,6 +195,7 @@ export interface Exception {
 }
 export interface Batch {
   id: string;
+  version?: number;
   name: string;
   createdAt: string;
   state: 'ready' | 'running' | 'on_hold' | 'completed';

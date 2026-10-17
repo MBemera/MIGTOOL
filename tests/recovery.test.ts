@@ -28,7 +28,7 @@ async function readyBatch(store: Store, service: MigrationService) {
   loaded.record.data.tax.declaration = 'SYNTHETIC-EVIDENCE';
   loaded.record.data.signatories[0].identityReference = 'SYNTHETIC-ID';
   service.edit('SYN-0001', loaded.record.data, loaded.etag, lease.leaseToken, actor, 'reviewer');
-  service.releaseBatch(batch.id, actor);
+  await service.releaseBatch(batch.id, actor);
   return batch;
 }
 it('TC-072 retries transient delivery without duplicate exports or receipts', async () => {
@@ -84,16 +84,14 @@ it('TC-076/091 holds the batch and blocks a mismatched readback', async () => {
 it('resumes a persisted import after the originating process is gone', async () => {
   const store = new Store(':memory:', pack);
   try {
-    store.db
-      .prepare("INSERT INTO ingest_runs VALUES(?,?,?,'queued')")
-      .run(
-        'recover-import',
-        JSON.stringify({
-          rows: extract.rows.slice(0, 2),
-          totals: { customerCount: 2, accountCount: 2 },
-        }),
-        JSON.stringify(actor),
-      );
+    store.db.prepare("INSERT INTO ingest_runs VALUES(?,?,?,'queued')").run(
+      'recover-import',
+      JSON.stringify({
+        rows: extract.rows.slice(0, 2),
+        totals: { customerCount: 2, accountCount: 2 },
+      }),
+      JSON.stringify(actor),
+    );
     await new MigrationService(store, pack).runOne();
     expect(store.list()).toHaveLength(2);
     expect(store.batch('recover-import').counts.created).toBe(2);

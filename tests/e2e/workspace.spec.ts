@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFile } from 'node:fs/promises';
+import JSZip from 'jszip';
 test('imports, resolves declarations, exports and reconciles through the UI', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -112,4 +114,58 @@ test('imports the Bank 1 CSV package and hands Bank 2 CBS load files over', asyn
   await page.getByRole('link', { name: 'Load files', exact: true }).first().click();
   expect((await downloadPromise).suggestedFilename()).toMatch(/-bank2-cbs-load\.zip$/);
   await page.screenshot({ path: 'test-results/csv-batches.png', fullPage: true });
+});
+test('approved amendments appear in both downloadable bundles and batch load files', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByLabel('Username').fill('admin');
+  await page.getByLabel('Password', { exact: true }).fill('demo-admin-2026');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Exception queue', exact: true })).toBeVisible();
+  const fixture = await (await page.request.get('/api/fixtures/extract')).json(),
+    row = { ...fixture.rows[0], CUST_ID: 'REG-AMENDMENT-001' },
+    input = { rows: [row], totals: { customerCount: 1, accountCount: 1 } };
+  const batch = await (await page.request.post('/api/ingest', { data: input })).json();
+  const lease = await (
+      await page.request.post(`/api/records/${row.CUST_ID}/lease`, { data: {} })
+    ).json(),
+    current = await (await page.request.get(`/api/records/${row.CUST_ID}`)).json();
+  current.record.data.tax.declaration = 'REGRESSION-DECLARATION';
+  current.record.data.signatories[0].identityReference = 'REGRESSION-ID';
+  expect(
+    (
+      await page.request.put(`/api/records/${row.CUST_ID}`, {
+        data: {
+          data: current.record.data,
+          etag: current.etag,
+          leaseToken: lease.leaseToken,
+        },
+      })
+    ).ok(),
+  ).toBe(true);
+  await page.request.post(`/api/batches/${batch.id}/release`, { data: {} });
+  await expect
+    .poll(
+      async () =>
+        (await (await page.request.get(`/api/records/${row.CUST_ID}`)).json()).record.state,
+    )
+    .toBe('reconciled');
+  row.CUST_LEGAL_NAME = 'Approved New Customer Name Pty Ltd';
+  expect((await page.request.post('/api/ingest', { data: input })).ok()).toBe(true);
+  await page.getByRole('button', { name: 'Customer records', exact: true }).click();
+  await page.getByPlaceholder('Customer name or ID').fill(row.CUST_ID);
+  await page.getByRole('button', { name: 'Open record', exact: true }).click();
+  await page.getByRole('button', { name: 'Approve amendment', exact: true }).click();
+  await expect(page.getByRole('heading', { name: row.CUST_LEGAL_NAME, exact: true })).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Download bundle', exact: true }).click();
+  const downloaded = await downloadPromise,
+    bundle = await JSZip.loadAsync(await readFile((await downloaded.path())!));
+  expect(await bundle.file('Customer_Create.csv')!.async('string')).toContain(row.CUST_LEGAL_NAME);
+  const response = await page.request.get(`/api/batches/${batch.id}/cbs-export`),
+    combined = await JSZip.loadAsync(await response.body());
+  expect(await combined.file('Customer_Create.csv')!.async('string')).toContain(
+    row.CUST_LEGAL_NAME,
+  );
 });

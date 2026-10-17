@@ -435,13 +435,13 @@ export function createApp(
         await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', platform: 'DOS' }),
       );
   });
-  app.post('/api/batches/:id/release', roles('admin'), (req, res) =>
-    res.json(service.releaseBatch(id(req), actor(req))),
+  app.post('/api/batches/:id/release', roles('admin'), async (req, res) =>
+    res.json(await service.releaseBatch(id(req), actor(req))),
   );
-  app.post('/api/batches/:id/:action', roles('admin'), (req, res) => {
+  app.post('/api/batches/:id/:action', roles('admin'), async (req, res) => {
     if (!['pause', 'resume'].includes(String(req.params.action)))
       throw new PlatformError('ACTION_INVALID', 'Unknown action');
-    service.batchAction(
+    await service.batchAction(
       id(req),
       req.params.action as 'pause' | 'resume',
       z.object({ reason: z.string().min(1).max(500) }).parse(req.body).reason,

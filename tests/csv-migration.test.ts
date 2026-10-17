@@ -13,6 +13,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import JSZip from 'jszip';
 import { type Actor, type Data, PlatformError } from '../packages/core/model';
 import { Store } from '../packages/adapters/store';
 import { hash } from '../packages/adapters/config';
@@ -122,7 +123,7 @@ describe('Bank 1 CSV extract to Bank 2 CBS load files', () => {
 
     for (const r of records) supplyDeclarations(r.recordId);
     expect(store.list().every((r) => r.state === 'cbs_ready')).toBe(true);
-    expect(service.releaseBatch(batch.id, admin).queued).toBe(10);
+    expect((await service.releaseBatch(batch.id, admin)).queued).toBe(10);
     await drain();
     expect(store.list().every((r) => r.state === 'reconciled')).toBe(true);
     expect(store.batch(batch.id).state).toBe('completed');
@@ -244,7 +245,7 @@ describe('review fixes', () => {
   it('B3 a refresh of an exported record becomes an amendment, and rejection resumes delivery', async () => {
     const batch = await importOne();
     supplyDeclarations('SYN-0001');
-    service.releaseBatch(batch.id, admin);
+    await service.releaseBatch(batch.id, admin);
     // Render and export but stop before delivery, as after a crash.
     const blocked = new MigrationService(store, pack, () => {}, {
       deliver: async () => {
@@ -282,7 +283,7 @@ describe('review fixes', () => {
     });
     const batch = await importOne();
     supplyDeclarations('SYN-0001');
-    flaky.releaseBatch(batch.id, admin);
+    await flaky.releaseBatch(batch.id, admin);
     await flaky.runOne();
     now += 2000;
     await flaky.runOne();
@@ -299,7 +300,7 @@ describe('review fixes', () => {
       },
       readback: async () => undefined,
     });
-    broken.releaseBatch(other.id, admin);
+    await broken.releaseBatch(other.id, admin);
     await broken.runOne();
     expect(store.load('SYN-0002').record.state).toBe('blocked');
     expect(['ready', 'on_hold']).toContain(store.batch(other.id).state);
@@ -339,7 +340,7 @@ describe('review fixes', () => {
   it('approves an amendment through the CBS adapter and reconciles it', async () => {
     const batch = await importOne();
     supplyDeclarations('SYN-0001');
-    service.releaseBatch(batch.id, admin);
+    await service.releaseBatch(batch.id, admin);
     await drain();
     await importOne([{ ...structuredClone(extract.rows[0]), EMAIL: 'amended@example.test' }]);
     const lease = store.acquire('SYN-0001', reviewer);
@@ -349,6 +350,51 @@ describe('review fixes', () => {
     expect(record.state).toBe('reconciled');
     expect(record.data.entity.email).toBe('amended@example.test');
     expect(readdirSync(cbs.root).some((f) => f.startsWith('amendment_SYN-0001'))).toBe(true);
+  });
+  it('downloads the latest approved amendment while retaining earlier bundles', async () => {
+    const batch = await importOne();
+    supplyDeclarations('SYN-0001');
+    await service.releaseBatch(batch.id, admin);
+    await drain();
+    const original = store.output('SYN-0001')!;
+    for (const name of ['Revised Customer Pty Ltd', 'Second Approved Name Pty Ltd']) {
+      await importOne([{ ...structuredClone(extract.rows[0]), CUST_LEGAL_NAME: name }]);
+      const lease = store.acquire('SYN-0001', reviewer);
+      if (!('leaseToken' in lease)) throw new Error('lease');
+      await service.decideAmendment('SYN-0001', 'approve', lease.leaseToken, reviewer);
+      const current = store.output('SYN-0001')!,
+        bundle = await JSZip.loadAsync(current.bytes),
+        combined = service.exportBatch(batch.id);
+      expect(await bundle.file('Customer_Create.csv')!.async('string')).toContain(name);
+      expect(Buffer.from(combined.files['Customer_Create.csv']).toString()).toContain(name);
+      expect(store.batch(batch.id).state).toBe('completed');
+      expect(current.digest).not.toBe(original.digest);
+    }
+    const archived = store.db
+      .prepare('SELECT bytes FROM amendment_outputs WHERE digest=?')
+      .get(original.digest) as { bytes: Uint8Array };
+    expect(Buffer.from(archived.bytes)).toEqual(Buffer.from(original.bytes));
+  });
+  it('keeps the previous download when an amendment readback fails', async () => {
+    const batch = await importOne();
+    supplyDeclarations('SYN-0001');
+    await service.releaseBatch(batch.id, admin);
+    await drain();
+    const before = store.output('SYN-0001')!;
+    await importOne([
+      { ...structuredClone(extract.rows[0]), CUST_LEGAL_NAME: 'Rejected Name Pty Ltd' },
+    ]);
+    const lease = store.acquire('SYN-0001', reviewer);
+    if (!('leaseToken' in lease)) throw new Error('lease');
+    const mismatch = new MigrationService(store, pack, () => {}, {
+      deliver: (...args) => cbs.deliver(...args),
+      readback: async () => undefined,
+    });
+    await expect(
+      mismatch.decideAmendment('SYN-0001', 'approve', lease.leaseToken, reviewer),
+    ).rejects.toMatchObject({ code: 'RECONCILIATION_MISMATCH' });
+    expect(store.output('SYN-0001')!.digest).toBe(before.digest);
+    expect(store.load('SYN-0001').record.state).toBe('amendment_pending');
   });
   it('tier 1 fixes a known CBS rejection and reloads; a mapping rejection goes to engineering', async () => {
     const rejectOnce = new MigrationService(store, pack, () => {}, {
@@ -361,7 +407,7 @@ describe('review fixes', () => {
     });
     const batch = await importOne();
     supplyDeclarations('SYN-0001');
-    rejectOnce.releaseBatch(batch.id, admin);
+    await rejectOnce.releaseBatch(batch.id, admin);
     await rejectOnce.runOne();
     // padPostcode changes nothing for a 4-digit postcode, so the fix cannot apply and ops get it.
     const exception = store.exceptions().find((e) => e.code === 'CBS-E1042')!;
@@ -375,7 +421,7 @@ describe('review fixes', () => {
     });
     const second = await importOne([structuredClone(extract.rows[2])]);
     supplyDeclarations('SYN-0003');
-    mapping.releaseBatch(second.id, admin);
+    await mapping.releaseBatch(second.id, admin);
     await mapping.runOne();
     expect(store.exceptions().find((e) => e.code === 'CBS-E2001')).toMatchObject({
       errorClass: 'mapping',
@@ -412,7 +458,7 @@ describe('review fixes', () => {
     });
     const batch = await importOne();
     supplyDeclarations('SYN-0001');
-    strict.releaseBatch(batch.id, admin);
+    await strict.releaseBatch(batch.id, admin);
     for (let i = 0; i < 5; i++) await strict.runOne();
     const record = store.load('SYN-0001').record;
     expect(rejected).toBe(1);
@@ -436,7 +482,7 @@ describe('review fixes', () => {
         return real;
       },
     });
-    lying.releaseBatch(batch.id, admin);
+    await lying.releaseBatch(batch.id, admin);
     await lying.runOne();
     expect(store.exceptions().find((e) => e.code === 'RECONCILIATION_MISMATCH')).toMatchObject({
       errorClass: 'mapping',
@@ -459,7 +505,7 @@ describe('review fixes', () => {
       ...store.batch(batch.id),
       counts: { ...store.batch(batch.id).counts, source: 1000 },
     });
-    failing.releaseBatch(batch.id, admin);
+    await failing.releaseBatch(batch.id, admin);
     for (let i = 0; i < 12; i++) await failing.runOne();
     const held = store.batch(batch.id);
     expect(held.state).toBe('on_hold');
@@ -620,7 +666,7 @@ describe('OneDrive landing and CBS load folders', () => {
     // The landing folder is only read: nothing added, changed or touched.
     expect(listing(source)).toEqual(before);
     for (const r of store.list()) supplyDeclarations(r.recordId);
-    svc.releaseBatch(batch.id, admin);
+    await svc.releaseBatch(batch.id, admin);
     for (let i = 0; i < 50; i++) if (!(await svc.runOne())) break;
     expect(store.list().every((r) => r.state === 'reconciled')).toBe(true);
     // Only complete delivery folders ever appear in the synced tree: no staging, temp or copies.
