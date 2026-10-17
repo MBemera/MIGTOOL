@@ -1,0 +1,147 @@
+{
+  "defaults": {
+    "engine": "jsonata"
+  },
+  "rules": [
+    {
+      "id": "legal-name",
+      "section": "entity.core",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "entity.legalName"
+      ],
+      "message": "Supply the legal entity name",
+      "class": "gap",
+      "assert": {
+        "engine": "fn",
+        "name": "present",
+        "args": [
+          "entity.legalName"
+        ]
+      },
+      "reason": "Registered check keeps this domain constraint explicit and reusable."
+    },
+    {
+      "id": "abn-valid",
+      "section": "entity.core",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "entity.abn"
+      ],
+      "message": "ABN must have 11 digits and a valid checksum",
+      "class": "data",
+      "assert": {
+        "engine": "fn",
+        "name": "validAbn",
+        "args": [
+          "entity.abn"
+        ]
+      },
+      "reason": "Registered check keeps this domain constraint explicit and reusable."
+    },
+    {
+      "id": "postcode-valid",
+      "section": "address.core",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "address.postcode"
+      ],
+      "message": "Postcode must contain four digits",
+      "class": "data",
+      "assert": {
+        "engine": "fn",
+        "name": "validPostcode",
+        "args": [
+          "address.postcode"
+        ]
+      },
+      "reason": "Registered check keeps this domain constraint explicit and reusable."
+    },
+    {
+      "id": "product-known",
+      "section": "accounts.list",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "accounts[*].productCode"
+      ],
+      "message": "Every account needs a known product code",
+      "class": "data",
+      "assert": {
+        "engine": "fn",
+        "name": "knownProduct"
+      },
+      "reason": "Registered check keeps this domain constraint explicit and reusable."
+    },
+    {
+      "id": "bsb-format",
+      "section": "accounts.list",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "accounts[*].bsb"
+      ],
+      "message": "Every BSB must contain six digits",
+      "class": "data",
+      "assert": "$count(accounts[$not($match(bsb, /^[0-9]{6}$/))]) = 0"
+    },
+    {
+      "id": "account-number",
+      "section": "accounts.list",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "accounts[*].accountNumber"
+      ],
+      "message": "Source account numbers must contain 6 to 12 digits",
+      "class": "data",
+      "assert": "$count(accounts[$not($match(accountNumber, /^[0-9]{6,12}$/))]) = 0"
+    },
+    {
+      "id": "tax-declaration",
+      "section": "tax.core",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "tax.declaration"
+      ],
+      "message": "Customer declaration evidence is required",
+      "class": "gap",
+      "assert": {
+        "engine": "fn",
+        "name": "present",
+        "args": [
+          "tax.declaration"
+        ]
+      },
+      "reason": "Registered check keeps this domain constraint explicit and reusable."
+    },
+    {
+      "id": "signatory-id",
+      "section": "signatories.list",
+      "severity": "critical",
+      "weight": 2,
+      "fields": [
+        "signatories[*].identityReference"
+      ],
+      "message": "Supply verified identity evidence for every signatory",
+      "class": "gap",
+      "assert": "$count(signatories[$not($exists(identityReference)) or identityReference = '']) = 0"
+    },
+    {
+      "id": "contact-email",
+      "section": "entity.core",
+      "severity": "warning",
+      "weight": 1,
+      "fields": [
+        "entity.email"
+      ],
+      "message": "Add a valid contact email",
+      "class": "gap",
+      "assert": "$exists(entity.email) and $contains(entity.email, '@')"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "output": "Account_Register.csv",
+  "kind": "csv",
+  "gate": "cbs",
+  "row_source": "accounts",
+  "columns": [
+    {
+      "name": "CUSTOMER_ID",
+      "from": "$record.recordId"
+    },
+    {
+      "name": "PRODUCT_CODE",
+      "from": "productCode"
+    },
+    {
+      "name": "ACCOUNT_NUMBER",
+      "from": "accountNumber"
+    },
+    {
+      "name": "BSB",
+      "from": "bsb"
+    },
+    {
+      "name": "OPEN_DATE",
+      "from": "openDate",
+      "transform": "date:DD/MM/YYYY"
+    }
+  ],
+  "order_by": [
+    "CUSTOMER_ID"
+  ]
+}

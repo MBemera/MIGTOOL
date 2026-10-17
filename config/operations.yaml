@@ -1,0 +1,17 @@
+{
+  "leaseMs": 900000,
+  "workerLeaseMs": 300000,
+  "renewMs": 300000,
+  "inactivityMs": 1800000,
+  "retrySeconds": [
+    1,
+    4,
+    16,
+    64,
+    256
+  ],
+  "circuitCount": 10,
+  "circuitFraction": 0.05,
+  "llmMode": "disabled",
+  "reviewAgeBusinessDays": 2
+}

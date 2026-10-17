@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {
+      "id": "pb-demo-postcode",
+      "match": {
+        "step": "validate",
+        "errorCode": "postcode-valid"
+      },
+      "path": "address.postcode",
+      "transform": "padPostcode",
+      "autoApply": true,
+      "approvedBy": "synthetic-fixture-reviewer"
+    }
+  ]
+}

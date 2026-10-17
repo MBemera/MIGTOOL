@@ -1,0 +1,6776 @@
+{
+  "name": "Synthetic refresh",
+  "totals": {
+    "customerCount": 199,
+    "accountCount": 199
+  },
+  "fullSnapshot": true,
+  "rows": [
+    {
+      "CUST_ID": "SYN-0001",
+      "CUST_LEGAL_NAME": "Synthetic 001 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer1@example.test",
+      "ADDRESS": "1 Refreshed Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000001",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 1",
+          "EMAIL": "person1@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 1"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0002",
+      "CUST_LEGAL_NAME": "Synthetic 002 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer2@example.test",
+      "ADDRESS": "2 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000002",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 2",
+          "EMAIL": "person2@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 2"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0003",
+      "CUST_LEGAL_NAME": "Synthetic 003 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer3@example.test",
+      "ADDRESS": "3 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000003",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 3",
+          "EMAIL": "person3@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 3"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0004",
+      "CUST_LEGAL_NAME": "Synthetic 004 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer4@example.test",
+      "ADDRESS": "4 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000004",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 4",
+          "EMAIL": "person4@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 4"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0005",
+      "CUST_LEGAL_NAME": "Synthetic 005 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer5@example.test",
+      "ADDRESS": "5 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000005",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 5",
+          "EMAIL": "person5@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 5"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0006",
+      "CUST_LEGAL_NAME": "Synthetic 006 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer6@example.test",
+      "ADDRESS": "6 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000006",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 6",
+          "EMAIL": "person6@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 6"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0007",
+      "CUST_LEGAL_NAME": "Synthetic 007 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer7@example.test",
+      "ADDRESS": "7 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000007",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 7",
+          "EMAIL": "person7@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 7"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0008",
+      "CUST_LEGAL_NAME": "Synthetic 008 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer8@example.test",
+      "ADDRESS": "8 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000008",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 8",
+          "EMAIL": "person8@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 8"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0009",
+      "CUST_LEGAL_NAME": "Synthetic 009 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer9@example.test",
+      "ADDRESS": "9 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000009",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 9",
+          "EMAIL": "person9@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 9"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0010",
+      "CUST_LEGAL_NAME": "Synthetic 010 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer10@example.test",
+      "ADDRESS": "10 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000010",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 10",
+          "EMAIL": "person10@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 10"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0011",
+      "CUST_LEGAL_NAME": "Synthetic 011 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer11@example.test",
+      "ADDRESS": "11 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000011",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 11",
+          "EMAIL": "person11@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 11"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0012",
+      "CUST_LEGAL_NAME": "Synthetic 012 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer12@example.test",
+      "ADDRESS": "12 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000012",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 12",
+          "EMAIL": "person12@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 12"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0013",
+      "CUST_LEGAL_NAME": "Synthetic 013 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer13@example.test",
+      "ADDRESS": "13 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000013",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 13",
+          "EMAIL": "person13@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 13"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0014",
+      "CUST_LEGAL_NAME": "Synthetic 014 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer14@example.test",
+      "ADDRESS": "14 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000014",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 14",
+          "EMAIL": "person14@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 14"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0015",
+      "CUST_LEGAL_NAME": "Synthetic 015 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer15@example.test",
+      "ADDRESS": "15 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000015",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 15",
+          "EMAIL": "person15@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 15"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0016",
+      "CUST_LEGAL_NAME": "Synthetic 016 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer16@example.test",
+      "ADDRESS": "16 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000016",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 16",
+          "EMAIL": "person16@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 16"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0017",
+      "CUST_LEGAL_NAME": "Synthetic 017 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer17@example.test",
+      "ADDRESS": "17 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000017",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 17",
+          "EMAIL": "person17@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 17"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0018",
+      "CUST_LEGAL_NAME": "Synthetic 018 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer18@example.test",
+      "ADDRESS": "18 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000018",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 18",
+          "EMAIL": "person18@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 18"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0019",
+      "CUST_LEGAL_NAME": "Synthetic 019 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer19@example.test",
+      "ADDRESS": "19 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000019",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 19",
+          "EMAIL": "person19@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 19"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0020",
+      "CUST_LEGAL_NAME": "Synthetic 020 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer20@example.test",
+      "ADDRESS": "20 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000020",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 20",
+          "EMAIL": "person20@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 20"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0021",
+      "CUST_LEGAL_NAME": "Synthetic 021 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer21@example.test",
+      "ADDRESS": "21 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000021",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 21",
+          "EMAIL": "person21@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 21"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0022",
+      "CUST_LEGAL_NAME": "Synthetic 022 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer22@example.test",
+      "ADDRESS": "22 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000022",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 22",
+          "EMAIL": "person22@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 22"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0023",
+      "CUST_LEGAL_NAME": "Synthetic 023 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer23@example.test",
+      "ADDRESS": "23 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000023",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 23",
+          "EMAIL": "person23@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 23"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0024",
+      "CUST_LEGAL_NAME": "Synthetic 024 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer24@example.test",
+      "ADDRESS": "24 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000024",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 24",
+          "EMAIL": "person24@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 24"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0025",
+      "CUST_LEGAL_NAME": "Synthetic 025 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer25@example.test",
+      "ADDRESS": "25 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000025",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 25",
+          "EMAIL": "person25@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 25"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0026",
+      "CUST_LEGAL_NAME": "Synthetic 026 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer26@example.test",
+      "ADDRESS": "26 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000026",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 26",
+          "EMAIL": "person26@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 26"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0027",
+      "CUST_LEGAL_NAME": "Synthetic 027 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer27@example.test",
+      "ADDRESS": "27 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000027",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 27",
+          "EMAIL": "person27@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 27"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0028",
+      "CUST_LEGAL_NAME": "Synthetic 028 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer28@example.test",
+      "ADDRESS": "28 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000028",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 28",
+          "EMAIL": "person28@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 28"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0029",
+      "CUST_LEGAL_NAME": "Synthetic 029 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer29@example.test",
+      "ADDRESS": "29 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000029",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 29",
+          "EMAIL": "person29@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 29"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0030",
+      "CUST_LEGAL_NAME": "Synthetic 030 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer30@example.test",
+      "ADDRESS": "30 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000030",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 30",
+          "EMAIL": "person30@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 30"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0031",
+      "CUST_LEGAL_NAME": "Synthetic 031 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer31@example.test",
+      "ADDRESS": "31 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000031",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 31",
+          "EMAIL": "person31@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 31"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0032",
+      "CUST_LEGAL_NAME": "Synthetic 032 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer32@example.test",
+      "ADDRESS": "32 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000032",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 32",
+          "EMAIL": "person32@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 32"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0033",
+      "CUST_LEGAL_NAME": "Synthetic 033 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer33@example.test",
+      "ADDRESS": "33 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000033",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 33",
+          "EMAIL": "person33@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 33"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0034",
+      "CUST_LEGAL_NAME": "Synthetic 034 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer34@example.test",
+      "ADDRESS": "34 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000034",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 34",
+          "EMAIL": "person34@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 34"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0035",
+      "CUST_LEGAL_NAME": "Synthetic 035 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer35@example.test",
+      "ADDRESS": "35 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000035",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 35",
+          "EMAIL": "person35@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 35"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0036",
+      "CUST_LEGAL_NAME": "Synthetic 036 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer36@example.test",
+      "ADDRESS": "36 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000036",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 36",
+          "EMAIL": "person36@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 36"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0037",
+      "CUST_LEGAL_NAME": "Synthetic 037 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer37@example.test",
+      "ADDRESS": "37 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000037",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 37",
+          "EMAIL": "person37@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 37"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0038",
+      "CUST_LEGAL_NAME": "Synthetic 038 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer38@example.test",
+      "ADDRESS": "38 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000038",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 38",
+          "EMAIL": "person38@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 38"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0039",
+      "CUST_LEGAL_NAME": "Synthetic 039 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer39@example.test",
+      "ADDRESS": "39 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000039",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 39",
+          "EMAIL": "person39@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 39"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0040",
+      "CUST_LEGAL_NAME": "Synthetic 040 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer40@example.test",
+      "ADDRESS": "40 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000040",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 40",
+          "EMAIL": "person40@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 40"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0041",
+      "CUST_LEGAL_NAME": "Synthetic 041 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer41@example.test",
+      "ADDRESS": "41 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000041",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 41",
+          "EMAIL": "person41@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 41"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0042",
+      "CUST_LEGAL_NAME": "Synthetic 042 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer42@example.test",
+      "ADDRESS": "42 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000042",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 42",
+          "EMAIL": "person42@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 42"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0043",
+      "CUST_LEGAL_NAME": "Synthetic 043 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer43@example.test",
+      "ADDRESS": "43 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000043",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 43",
+          "EMAIL": "person43@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 43"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0044",
+      "CUST_LEGAL_NAME": "Synthetic 044 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer44@example.test",
+      "ADDRESS": "44 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000044",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 44",
+          "EMAIL": "person44@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 44"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0045",
+      "CUST_LEGAL_NAME": "Synthetic 045 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer45@example.test",
+      "ADDRESS": "45 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000045",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 45",
+          "EMAIL": "person45@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 45"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0046",
+      "CUST_LEGAL_NAME": "Synthetic 046 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer46@example.test",
+      "ADDRESS": "46 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000046",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 46",
+          "EMAIL": "person46@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 46"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0047",
+      "CUST_LEGAL_NAME": "Synthetic 047 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer47@example.test",
+      "ADDRESS": "47 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000047",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 47",
+          "EMAIL": "person47@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 47"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0048",
+      "CUST_LEGAL_NAME": "Synthetic 048 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer48@example.test",
+      "ADDRESS": "48 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000048",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 48",
+          "EMAIL": "person48@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 48"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0049",
+      "CUST_LEGAL_NAME": "Synthetic 049 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer49@example.test",
+      "ADDRESS": "49 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000049",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 49",
+          "EMAIL": "person49@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 49"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0050",
+      "CUST_LEGAL_NAME": "Synthetic 050 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer50@example.test",
+      "ADDRESS": "50 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000050",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 50",
+          "EMAIL": "person50@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 50"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0051",
+      "CUST_LEGAL_NAME": "Synthetic 051 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer51@example.test",
+      "ADDRESS": "51 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000051",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 51",
+          "EMAIL": "person51@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 51"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0052",
+      "CUST_LEGAL_NAME": "Synthetic 052 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer52@example.test",
+      "ADDRESS": "52 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000052",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 52",
+          "EMAIL": "person52@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 52"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0053",
+      "CUST_LEGAL_NAME": "Synthetic 053 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer53@example.test",
+      "ADDRESS": "53 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000053",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 53",
+          "EMAIL": "person53@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 53"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0054",
+      "CUST_LEGAL_NAME": "Synthetic 054 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer54@example.test",
+      "ADDRESS": "54 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000054",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 54",
+          "EMAIL": "person54@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 54"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0055",
+      "CUST_LEGAL_NAME": "Synthetic 055 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer55@example.test",
+      "ADDRESS": "55 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000055",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 55",
+          "EMAIL": "person55@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 55"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0056",
+      "CUST_LEGAL_NAME": "Synthetic 056 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer56@example.test",
+      "ADDRESS": "56 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000056",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 56",
+          "EMAIL": "person56@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 56"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0057",
+      "CUST_LEGAL_NAME": "Synthetic 057 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer57@example.test",
+      "ADDRESS": "57 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000057",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 57",
+          "EMAIL": "person57@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 57"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0058",
+      "CUST_LEGAL_NAME": "Synthetic 058 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer58@example.test",
+      "ADDRESS": "58 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000058",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 58",
+          "EMAIL": "person58@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 58"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0059",
+      "CUST_LEGAL_NAME": "Synthetic 059 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer59@example.test",
+      "ADDRESS": "59 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000059",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 59",
+          "EMAIL": "person59@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 59"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0060",
+      "CUST_LEGAL_NAME": "Synthetic 060 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer60@example.test",
+      "ADDRESS": "60 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000060",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 60",
+          "EMAIL": "person60@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 60"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0061",
+      "CUST_LEGAL_NAME": "Synthetic 061 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer61@example.test",
+      "ADDRESS": "61 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000061",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 61",
+          "EMAIL": "person61@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 61"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0062",
+      "CUST_LEGAL_NAME": "Synthetic 062 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer62@example.test",
+      "ADDRESS": "62 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000062",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 62",
+          "EMAIL": "person62@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 62"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0063",
+      "CUST_LEGAL_NAME": "Synthetic 063 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer63@example.test",
+      "ADDRESS": "63 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000063",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 63",
+          "EMAIL": "person63@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 63"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0064",
+      "CUST_LEGAL_NAME": "Synthetic 064 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer64@example.test",
+      "ADDRESS": "64 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000064",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 64",
+          "EMAIL": "person64@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 64"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0065",
+      "CUST_LEGAL_NAME": "Synthetic 065 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer65@example.test",
+      "ADDRESS": "65 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000065",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 65",
+          "EMAIL": "person65@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 65"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0066",
+      "CUST_LEGAL_NAME": "Synthetic 066 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer66@example.test",
+      "ADDRESS": "66 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000066",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 66",
+          "EMAIL": "person66@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 66"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0067",
+      "CUST_LEGAL_NAME": "Synthetic 067 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer67@example.test",
+      "ADDRESS": "67 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000067",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 67",
+          "EMAIL": "person67@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 67"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0068",
+      "CUST_LEGAL_NAME": "Synthetic 068 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer68@example.test",
+      "ADDRESS": "68 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000068",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 68",
+          "EMAIL": "person68@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 68"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0069",
+      "CUST_LEGAL_NAME": "Synthetic 069 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer69@example.test",
+      "ADDRESS": "69 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000069",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 69",
+          "EMAIL": "person69@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 69"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0070",
+      "CUST_LEGAL_NAME": "Synthetic 070 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer70@example.test",
+      "ADDRESS": "70 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000070",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 70",
+          "EMAIL": "person70@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 70"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0071",
+      "CUST_LEGAL_NAME": "Synthetic 071 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer71@example.test",
+      "ADDRESS": "71 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000071",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 71",
+          "EMAIL": "person71@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 71"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0072",
+      "CUST_LEGAL_NAME": "Synthetic 072 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer72@example.test",
+      "ADDRESS": "72 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000072",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 72",
+          "EMAIL": "person72@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 72"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0073",
+      "CUST_LEGAL_NAME": "Synthetic 073 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer73@example.test",
+      "ADDRESS": "73 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000073",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 73",
+          "EMAIL": "person73@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 73"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0074",
+      "CUST_LEGAL_NAME": "Synthetic 074 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer74@example.test",
+      "ADDRESS": "74 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000074",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 74",
+          "EMAIL": "person74@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 74"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0075",
+      "CUST_LEGAL_NAME": "Synthetic 075 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer75@example.test",
+      "ADDRESS": "75 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000075",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 75",
+          "EMAIL": "person75@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 75"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0076",
+      "CUST_LEGAL_NAME": "Synthetic 076 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer76@example.test",
+      "ADDRESS": "76 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000076",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 76",
+          "EMAIL": "person76@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 76"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0077",
+      "CUST_LEGAL_NAME": "Synthetic 077 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer77@example.test",
+      "ADDRESS": "77 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000077",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 77",
+          "EMAIL": "person77@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 77"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0078",
+      "CUST_LEGAL_NAME": "Synthetic 078 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer78@example.test",
+      "ADDRESS": "78 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000078",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 78",
+          "EMAIL": "person78@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 78"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0079",
+      "CUST_LEGAL_NAME": "Synthetic 079 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer79@example.test",
+      "ADDRESS": "79 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000079",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 79",
+          "EMAIL": "person79@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 79"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0080",
+      "CUST_LEGAL_NAME": "Synthetic 080 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer80@example.test",
+      "ADDRESS": "80 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000080",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 80",
+          "EMAIL": "person80@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 80"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0081",
+      "CUST_LEGAL_NAME": "Synthetic 081 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer81@example.test",
+      "ADDRESS": "81 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000081",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 81",
+          "EMAIL": "person81@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 81"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0082",
+      "CUST_LEGAL_NAME": "Synthetic 082 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer82@example.test",
+      "ADDRESS": "82 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000082",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 82",
+          "EMAIL": "person82@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 82"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0083",
+      "CUST_LEGAL_NAME": "Synthetic 083 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer83@example.test",
+      "ADDRESS": "83 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000083",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 83",
+          "EMAIL": "person83@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 83"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0084",
+      "CUST_LEGAL_NAME": "Synthetic 084 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer84@example.test",
+      "ADDRESS": "84 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000084",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 84",
+          "EMAIL": "person84@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 84"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0085",
+      "CUST_LEGAL_NAME": "Synthetic 085 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer85@example.test",
+      "ADDRESS": "85 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000085",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 85",
+          "EMAIL": "person85@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 85"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0086",
+      "CUST_LEGAL_NAME": "Synthetic 086 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer86@example.test",
+      "ADDRESS": "86 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000086",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 86",
+          "EMAIL": "person86@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 86"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0087",
+      "CUST_LEGAL_NAME": "Synthetic 087 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer87@example.test",
+      "ADDRESS": "87 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000087",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 87",
+          "EMAIL": "person87@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 87"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0088",
+      "CUST_LEGAL_NAME": "Synthetic 088 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer88@example.test",
+      "ADDRESS": "88 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000088",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 88",
+          "EMAIL": "person88@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 88"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0089",
+      "CUST_LEGAL_NAME": "Synthetic 089 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer89@example.test",
+      "ADDRESS": "89 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000089",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 89",
+          "EMAIL": "person89@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 89"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0090",
+      "CUST_LEGAL_NAME": "Synthetic 090 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer90@example.test",
+      "ADDRESS": "90 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000090",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 90",
+          "EMAIL": "person90@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 90"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0091",
+      "CUST_LEGAL_NAME": "Synthetic 091 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer91@example.test",
+      "ADDRESS": "91 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000091",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 91",
+          "EMAIL": "person91@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 91"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0092",
+      "CUST_LEGAL_NAME": "Synthetic 092 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer92@example.test",
+      "ADDRESS": "92 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000092",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 92",
+          "EMAIL": "person92@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 92"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0093",
+      "CUST_LEGAL_NAME": "Synthetic 093 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer93@example.test",
+      "ADDRESS": "93 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000093",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 93",
+          "EMAIL": "person93@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 93"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0094",
+      "CUST_LEGAL_NAME": "Synthetic 094 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer94@example.test",
+      "ADDRESS": "94 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000094",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 94",
+          "EMAIL": "person94@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 94"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0095",
+      "CUST_LEGAL_NAME": "Synthetic 095 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer95@example.test",
+      "ADDRESS": "95 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000095",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 95",
+          "EMAIL": "person95@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 95"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0096",
+      "CUST_LEGAL_NAME": "Synthetic 096 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer96@example.test",
+      "ADDRESS": "96 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000096",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 96",
+          "EMAIL": "person96@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 96"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0097",
+      "CUST_LEGAL_NAME": "Synthetic 097 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer97@example.test",
+      "ADDRESS": "97 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000097",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 97",
+          "EMAIL": "person97@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 97"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0098",
+      "CUST_LEGAL_NAME": "Synthetic 098 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer98@example.test",
+      "ADDRESS": "98 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000098",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 98",
+          "EMAIL": "person98@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 98"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0099",
+      "CUST_LEGAL_NAME": "Synthetic 099 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer99@example.test",
+      "ADDRESS": "99 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000099",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 99",
+          "EMAIL": "person99@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 99"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0100",
+      "CUST_LEGAL_NAME": "Synthetic 100 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer100@example.test",
+      "ADDRESS": "100 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000100",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 100",
+          "EMAIL": "person100@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 100"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0101",
+      "CUST_LEGAL_NAME": "Synthetic 101 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer101@example.test",
+      "ADDRESS": "101 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000101",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 101",
+          "EMAIL": "person101@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 101"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0102",
+      "CUST_LEGAL_NAME": "Synthetic 102 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer102@example.test",
+      "ADDRESS": "102 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000102",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 102",
+          "EMAIL": "person102@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 102"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0103",
+      "CUST_LEGAL_NAME": "Synthetic 103 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer103@example.test",
+      "ADDRESS": "103 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000103",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 103",
+          "EMAIL": "person103@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 103"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0104",
+      "CUST_LEGAL_NAME": "Synthetic 104 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer104@example.test",
+      "ADDRESS": "104 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000104",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 104",
+          "EMAIL": "person104@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 104"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0105",
+      "CUST_LEGAL_NAME": "Synthetic 105 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer105@example.test",
+      "ADDRESS": "105 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000105",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 105",
+          "EMAIL": "person105@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 105"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0106",
+      "CUST_LEGAL_NAME": "Synthetic 106 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer106@example.test",
+      "ADDRESS": "106 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000106",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 106",
+          "EMAIL": "person106@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 106"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0107",
+      "CUST_LEGAL_NAME": "Synthetic 107 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer107@example.test",
+      "ADDRESS": "107 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000107",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 107",
+          "EMAIL": "person107@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 107"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0108",
+      "CUST_LEGAL_NAME": "Synthetic 108 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer108@example.test",
+      "ADDRESS": "108 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000108",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 108",
+          "EMAIL": "person108@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 108"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0109",
+      "CUST_LEGAL_NAME": "Synthetic 109 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer109@example.test",
+      "ADDRESS": "109 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000109",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 109",
+          "EMAIL": "person109@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 109"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0110",
+      "CUST_LEGAL_NAME": "Synthetic 110 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer110@example.test",
+      "ADDRESS": "110 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000110",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 110",
+          "EMAIL": "person110@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 110"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0111",
+      "CUST_LEGAL_NAME": "Synthetic 111 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer111@example.test",
+      "ADDRESS": "111 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000111",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 111",
+          "EMAIL": "person111@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 111"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0112",
+      "CUST_LEGAL_NAME": "Synthetic 112 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer112@example.test",
+      "ADDRESS": "112 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000112",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 112",
+          "EMAIL": "person112@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 112"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0113",
+      "CUST_LEGAL_NAME": "Synthetic 113 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer113@example.test",
+      "ADDRESS": "113 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000113",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 113",
+          "EMAIL": "person113@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 113"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0114",
+      "CUST_LEGAL_NAME": "Synthetic 114 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer114@example.test",
+      "ADDRESS": "114 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000114",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 114",
+          "EMAIL": "person114@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 114"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0115",
+      "CUST_LEGAL_NAME": "Synthetic 115 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer115@example.test",
+      "ADDRESS": "115 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000115",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 115",
+          "EMAIL": "person115@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 115"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0116",
+      "CUST_LEGAL_NAME": "Synthetic 116 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer116@example.test",
+      "ADDRESS": "116 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000116",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 116",
+          "EMAIL": "person116@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 116"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0117",
+      "CUST_LEGAL_NAME": "Synthetic 117 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer117@example.test",
+      "ADDRESS": "117 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000117",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 117",
+          "EMAIL": "person117@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 117"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0118",
+      "CUST_LEGAL_NAME": "Synthetic 118 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer118@example.test",
+      "ADDRESS": "118 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000118",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 118",
+          "EMAIL": "person118@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 118"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0119",
+      "CUST_LEGAL_NAME": "Synthetic 119 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer119@example.test",
+      "ADDRESS": "119 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000119",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 119",
+          "EMAIL": "person119@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 119"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0120",
+      "CUST_LEGAL_NAME": "Synthetic 120 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer120@example.test",
+      "ADDRESS": "120 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000120",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 120",
+          "EMAIL": "person120@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 120"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0121",
+      "CUST_LEGAL_NAME": "Synthetic 121 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer121@example.test",
+      "ADDRESS": "121 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000121",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 121",
+          "EMAIL": "person121@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 121"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0122",
+      "CUST_LEGAL_NAME": "Synthetic 122 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer122@example.test",
+      "ADDRESS": "122 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000122",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 122",
+          "EMAIL": "person122@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 122"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0123",
+      "CUST_LEGAL_NAME": "Synthetic 123 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer123@example.test",
+      "ADDRESS": "123 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000123",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 123",
+          "EMAIL": "person123@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 123"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0124",
+      "CUST_LEGAL_NAME": "Synthetic 124 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer124@example.test",
+      "ADDRESS": "124 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000124",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 124",
+          "EMAIL": "person124@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 124"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0125",
+      "CUST_LEGAL_NAME": "Synthetic 125 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer125@example.test",
+      "ADDRESS": "125 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000125",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 125",
+          "EMAIL": "person125@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 125"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0126",
+      "CUST_LEGAL_NAME": "Synthetic 126 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer126@example.test",
+      "ADDRESS": "126 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000126",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 126",
+          "EMAIL": "person126@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 126"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0127",
+      "CUST_LEGAL_NAME": "Synthetic 127 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer127@example.test",
+      "ADDRESS": "127 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000127",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 127",
+          "EMAIL": "person127@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 127"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0128",
+      "CUST_LEGAL_NAME": "Synthetic 128 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer128@example.test",
+      "ADDRESS": "128 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000128",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 128",
+          "EMAIL": "person128@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 128"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0129",
+      "CUST_LEGAL_NAME": "Synthetic 129 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer129@example.test",
+      "ADDRESS": "129 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000129",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 129",
+          "EMAIL": "person129@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 129"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0130",
+      "CUST_LEGAL_NAME": "Synthetic 130 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer130@example.test",
+      "ADDRESS": "130 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000130",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 130",
+          "EMAIL": "person130@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 130"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0131",
+      "CUST_LEGAL_NAME": "Synthetic 131 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer131@example.test",
+      "ADDRESS": "131 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000131",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 131",
+          "EMAIL": "person131@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 131"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0132",
+      "CUST_LEGAL_NAME": "Synthetic 132 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer132@example.test",
+      "ADDRESS": "132 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000132",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 132",
+          "EMAIL": "person132@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 132"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0133",
+      "CUST_LEGAL_NAME": "Synthetic 133 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer133@example.test",
+      "ADDRESS": "133 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000133",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 133",
+          "EMAIL": "person133@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 133"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0134",
+      "CUST_LEGAL_NAME": "Synthetic 134 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer134@example.test",
+      "ADDRESS": "134 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000134",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 134",
+          "EMAIL": "person134@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 134"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0135",
+      "CUST_LEGAL_NAME": "Synthetic 135 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer135@example.test",
+      "ADDRESS": "135 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000135",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 135",
+          "EMAIL": "person135@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 135"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0136",
+      "CUST_LEGAL_NAME": "Synthetic 136 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer136@example.test",
+      "ADDRESS": "136 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000136",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 136",
+          "EMAIL": "person136@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 136"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0137",
+      "CUST_LEGAL_NAME": "Synthetic 137 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer137@example.test",
+      "ADDRESS": "137 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000137",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 137",
+          "EMAIL": "person137@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 137"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0138",
+      "CUST_LEGAL_NAME": "Synthetic 138 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer138@example.test",
+      "ADDRESS": "138 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000138",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 138",
+          "EMAIL": "person138@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 138"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0139",
+      "CUST_LEGAL_NAME": "Synthetic 139 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer139@example.test",
+      "ADDRESS": "139 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000139",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 139",
+          "EMAIL": "person139@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 139"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0140",
+      "CUST_LEGAL_NAME": "Synthetic 140 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer140@example.test",
+      "ADDRESS": "140 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000140",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 140",
+          "EMAIL": "person140@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 140"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0141",
+      "CUST_LEGAL_NAME": "Synthetic 141 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer141@example.test",
+      "ADDRESS": "141 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000141",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 141",
+          "EMAIL": "person141@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 141"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0142",
+      "CUST_LEGAL_NAME": "Synthetic 142 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer142@example.test",
+      "ADDRESS": "142 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000142",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 142",
+          "EMAIL": "person142@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 142"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0143",
+      "CUST_LEGAL_NAME": "Synthetic 143 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer143@example.test",
+      "ADDRESS": "143 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000143",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 143",
+          "EMAIL": "person143@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 143"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0144",
+      "CUST_LEGAL_NAME": "Synthetic 144 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer144@example.test",
+      "ADDRESS": "144 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000144",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 144",
+          "EMAIL": "person144@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 144"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0145",
+      "CUST_LEGAL_NAME": "Synthetic 145 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer145@example.test",
+      "ADDRESS": "145 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000145",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 145",
+          "EMAIL": "person145@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 145"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0146",
+      "CUST_LEGAL_NAME": "Synthetic 146 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer146@example.test",
+      "ADDRESS": "146 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000146",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 146",
+          "EMAIL": "person146@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 146"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0147",
+      "CUST_LEGAL_NAME": "Synthetic 147 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer147@example.test",
+      "ADDRESS": "147 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000147",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 147",
+          "EMAIL": "person147@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 147"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0148",
+      "CUST_LEGAL_NAME": "Synthetic 148 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer148@example.test",
+      "ADDRESS": "148 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000148",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 148",
+          "EMAIL": "person148@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 148"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0149",
+      "CUST_LEGAL_NAME": "Synthetic 149 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer149@example.test",
+      "ADDRESS": "149 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000149",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 149",
+          "EMAIL": "person149@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 149"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0150",
+      "CUST_LEGAL_NAME": "Synthetic 150 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer150@example.test",
+      "ADDRESS": "150 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000150",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 150",
+          "EMAIL": "person150@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 150"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0151",
+      "CUST_LEGAL_NAME": "Synthetic 151 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer151@example.test",
+      "ADDRESS": "151 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000151",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 151",
+          "EMAIL": "person151@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 151"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0152",
+      "CUST_LEGAL_NAME": "Synthetic 152 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer152@example.test",
+      "ADDRESS": "152 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000152",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 152",
+          "EMAIL": "person152@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 152"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0153",
+      "CUST_LEGAL_NAME": "Synthetic 153 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer153@example.test",
+      "ADDRESS": "153 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000153",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 153",
+          "EMAIL": "person153@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 153"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0154",
+      "CUST_LEGAL_NAME": "Synthetic 154 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer154@example.test",
+      "ADDRESS": "154 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000154",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 154",
+          "EMAIL": "person154@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 154"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0155",
+      "CUST_LEGAL_NAME": "Synthetic 155 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer155@example.test",
+      "ADDRESS": "155 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000155",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 155",
+          "EMAIL": "person155@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 155"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0156",
+      "CUST_LEGAL_NAME": "Synthetic 156 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer156@example.test",
+      "ADDRESS": "156 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000156",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 156",
+          "EMAIL": "person156@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 156"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0157",
+      "CUST_LEGAL_NAME": "Synthetic 157 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer157@example.test",
+      "ADDRESS": "157 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000157",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 157",
+          "EMAIL": "person157@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 157"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0158",
+      "CUST_LEGAL_NAME": "Synthetic 158 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer158@example.test",
+      "ADDRESS": "158 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000158",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 158",
+          "EMAIL": "person158@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 158"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0159",
+      "CUST_LEGAL_NAME": "Synthetic 159 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer159@example.test",
+      "ADDRESS": "159 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000159",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 159",
+          "EMAIL": "person159@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 159"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0160",
+      "CUST_LEGAL_NAME": "Synthetic 160 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer160@example.test",
+      "ADDRESS": "160 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000160",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 160",
+          "EMAIL": "person160@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 160"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0161",
+      "CUST_LEGAL_NAME": "Synthetic 161 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer161@example.test",
+      "ADDRESS": "161 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000161",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 161",
+          "EMAIL": "person161@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 161"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0162",
+      "CUST_LEGAL_NAME": "Synthetic 162 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer162@example.test",
+      "ADDRESS": "162 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000162",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 162",
+          "EMAIL": "person162@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 162"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0163",
+      "CUST_LEGAL_NAME": "Synthetic 163 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer163@example.test",
+      "ADDRESS": "163 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000163",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 163",
+          "EMAIL": "person163@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 163"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0164",
+      "CUST_LEGAL_NAME": "Synthetic 164 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer164@example.test",
+      "ADDRESS": "164 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000164",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 164",
+          "EMAIL": "person164@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 164"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0165",
+      "CUST_LEGAL_NAME": "Synthetic 165 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer165@example.test",
+      "ADDRESS": "165 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000165",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 165",
+          "EMAIL": "person165@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 165"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0166",
+      "CUST_LEGAL_NAME": "Synthetic 166 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer166@example.test",
+      "ADDRESS": "166 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000166",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 166",
+          "EMAIL": "person166@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 166"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0167",
+      "CUST_LEGAL_NAME": "Synthetic 167 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer167@example.test",
+      "ADDRESS": "167 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000167",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 167",
+          "EMAIL": "person167@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 167"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0168",
+      "CUST_LEGAL_NAME": "Synthetic 168 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer168@example.test",
+      "ADDRESS": "168 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000168",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 168",
+          "EMAIL": "person168@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 168"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0169",
+      "CUST_LEGAL_NAME": "Synthetic 169 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer169@example.test",
+      "ADDRESS": "169 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000169",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 169",
+          "EMAIL": "person169@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 169"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0170",
+      "CUST_LEGAL_NAME": "Synthetic 170 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer170@example.test",
+      "ADDRESS": "170 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000170",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 170",
+          "EMAIL": "person170@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 170"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0171",
+      "CUST_LEGAL_NAME": "Synthetic 171 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer171@example.test",
+      "ADDRESS": "171 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000171",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 171",
+          "EMAIL": "person171@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 171"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0172",
+      "CUST_LEGAL_NAME": "Synthetic 172 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer172@example.test",
+      "ADDRESS": "172 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000172",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 172",
+          "EMAIL": "person172@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 172"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0173",
+      "CUST_LEGAL_NAME": "Synthetic 173 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer173@example.test",
+      "ADDRESS": "173 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000173",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 173",
+          "EMAIL": "person173@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 173"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0174",
+      "CUST_LEGAL_NAME": "Synthetic 174 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer174@example.test",
+      "ADDRESS": "174 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000174",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 174",
+          "EMAIL": "person174@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 174"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0175",
+      "CUST_LEGAL_NAME": "Synthetic 175 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer175@example.test",
+      "ADDRESS": "175 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000175",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 175",
+          "EMAIL": "person175@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 175"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0176",
+      "CUST_LEGAL_NAME": "Synthetic 176 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer176@example.test",
+      "ADDRESS": "176 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000176",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 176",
+          "EMAIL": "person176@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 176"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0177",
+      "CUST_LEGAL_NAME": "Synthetic 177 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer177@example.test",
+      "ADDRESS": "177 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000177",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 177",
+          "EMAIL": "person177@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 177"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0178",
+      "CUST_LEGAL_NAME": "Synthetic 178 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer178@example.test",
+      "ADDRESS": "178 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000178",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 178",
+          "EMAIL": "person178@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 178"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0179",
+      "CUST_LEGAL_NAME": "Synthetic 179 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer179@example.test",
+      "ADDRESS": "179 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000179",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 179",
+          "EMAIL": "person179@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 179"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0180",
+      "CUST_LEGAL_NAME": "Synthetic 180 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer180@example.test",
+      "ADDRESS": "180 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000180",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 180",
+          "EMAIL": "person180@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 180"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0181",
+      "CUST_LEGAL_NAME": "Synthetic 181 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer181@example.test",
+      "ADDRESS": "181 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000181",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 181",
+          "EMAIL": "person181@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 181"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0182",
+      "CUST_LEGAL_NAME": "Synthetic 182 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer182@example.test",
+      "ADDRESS": "182 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000182",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 182",
+          "EMAIL": "person182@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 182"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0183",
+      "CUST_LEGAL_NAME": "Synthetic 183 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer183@example.test",
+      "ADDRESS": "183 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000183",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 183",
+          "EMAIL": "person183@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 183"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0184",
+      "CUST_LEGAL_NAME": "Synthetic 184 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer184@example.test",
+      "ADDRESS": "184 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "MERCHANT",
+          "NUMBER": "10000184",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 184",
+          "EMAIL": "person184@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 184"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0185",
+      "CUST_LEGAL_NAME": "Synthetic 185 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer185@example.test",
+      "ADDRESS": "185 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "PAYROLL",
+          "NUMBER": "10000185",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 185",
+          "EMAIL": "person185@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 185"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0186",
+      "CUST_LEGAL_NAME": "Synthetic 186 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer186@example.test",
+      "ADDRESS": "186 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "BPAY",
+          "NUMBER": "10000186",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 186",
+          "EMAIL": "person186@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 186"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0187",
+      "CUST_LEGAL_NAME": "Synthetic 187 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer187@example.test",
+      "ADDRESS": "187 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "DIRECT",
+          "NUMBER": "10000187",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 187",
+          "EMAIL": "person187@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 187"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0188",
+      "CUST_LEGAL_NAME": "Synthetic 188 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer188@example.test",
+      "ADDRESS": "188 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRADE",
+          "NUMBER": "10000188",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 188",
+          "EMAIL": "person188@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 188"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0189",
+      "CUST_LEGAL_NAME": "Synthetic 189 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer189@example.test",
+      "ADDRESS": "189 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "GUARANTEE",
+          "NUMBER": "10000189",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 189",
+          "EMAIL": "person189@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 189"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0190",
+      "CUST_LEGAL_NAME": "Synthetic 190 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer190@example.test",
+      "ADDRESS": "190 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CASH",
+          "NUMBER": "10000190",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 190",
+          "EMAIL": "person190@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 190"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0191",
+      "CUST_LEGAL_NAME": "Synthetic 191 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer191@example.test",
+      "ADDRESS": "191 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRUST",
+          "NUMBER": "10000191",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 191",
+          "EMAIL": "person191@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 191"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0192",
+      "CUST_LEGAL_NAME": "Synthetic 192 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer192@example.test",
+      "ADDRESS": "192 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "ESCROW",
+          "NUMBER": "10000192",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 192",
+          "EMAIL": "person192@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 192"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0193",
+      "CUST_LEGAL_NAME": "Synthetic 193 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer193@example.test",
+      "ADDRESS": "193 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TRAN",
+          "NUMBER": "10000193",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 193",
+          "EMAIL": "person193@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 193"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0194",
+      "CUST_LEGAL_NAME": "Synthetic 194 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer194@example.test",
+      "ADDRESS": "194 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "SAVE",
+          "NUMBER": "10000194",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 194",
+          "EMAIL": "person194@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 194"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0195",
+      "CUST_LEGAL_NAME": "Synthetic 195 Pty Ltd",
+      "CUST_ABN": "123",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer195@example.test",
+      "ADDRESS": "195 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "TD",
+          "NUMBER": "10000195",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 195",
+          "EMAIL": "person195@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 195"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0196",
+      "CUST_LEGAL_NAME": "Synthetic 196 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer196@example.test",
+      "ADDRESS": "196 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "FX",
+          "NUMBER": "10000196",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 196",
+          "EMAIL": "person196@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 196"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0197",
+      "CUST_LEGAL_NAME": "Synthetic 197 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer197@example.test",
+      "ADDRESS": "197 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "LOAN",
+          "NUMBER": "10000197",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 197",
+          "EMAIL": "person197@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 197"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0198",
+      "CUST_LEGAL_NAME": "Synthetic 198 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer198@example.test",
+      "ADDRESS": "198 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "800",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "OD",
+          "NUMBER": "10000198",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 198",
+          "EMAIL": "person198@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 198"
+        }
+      ]
+    },
+    {
+      "CUST_ID": "SYN-0199",
+      "CUST_LEGAL_NAME": "Synthetic 199 Pty Ltd",
+      "CUST_ABN": "51824753556",
+      "CUST_TYPE": "company",
+      "EMAIL": "customer199@example.test",
+      "ADDRESS": "199 Example Street",
+      "SUBURB": "Geelong",
+      "STATE": "VIC",
+      "POSTCODE": "3220",
+      "COUNTRY": "AU",
+      "TAX_RESIDENCY": "AU",
+      "FOREIGN_TAX": false,
+      "ACCOUNTS": [
+        {
+          "PRODUCT": "CARD",
+          "NUMBER": "10000199",
+          "BSB": "013001",
+          "OPEN_DATE": "2026-10-17"
+        }
+      ],
+      "PEOPLE": [
+        {
+          "NAME": "Synthetic Person 199",
+          "EMAIL": "person199@example.test",
+          "ROLE": "director"
+        }
+      ],
+      "SIGNATORIES": [
+        {
+          "NAME": "Synthetic Person 199"
+        }
+      ]
+    }
+  ]
+}

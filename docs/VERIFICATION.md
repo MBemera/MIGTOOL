@@ -1,0 +1,29 @@
+# Verification
+
+All automated data is synthetic. The supplied specification itself is not committed.
+
+## Automated coverage
+
+The suite exercises configuration failures, unknown field/function references, condition engines, visibility and collection bounds, weighted scores, gate prerequisites, illegal transitions, migration idempotency, shadow comparison, unknown lookups, property-based mapping/score checks, refresh conflicts, frozen amendments, proposal policy, prototype-pollution rejection and deterministic manifests.
+
+Backend checks cover 100 two-connection lease races, expiry, renewal, worker contention, stale writes, immutable trace events, provenance links, 200-row idempotent imports, duplicates, control-total rejection, missing snapshot customers, persisted import recovery, restart recovery, outage retries, readback mismatch/circuit handling, exception ageing and LLM input minimisation.
+
+API checks cover authentication, server-enforced roles, cross-origin rejection, session expiry, lease-token ownership and real PDF responses. Browser checks cover the complete import/edit/release/download flow, two-user lease contention, desktop/tablet layout, zero running animations and an axe scan of the exception workspace. The scan does not replace full WCAG 2.2 AA manual assessment of every screen.
+
+Synthetic XFA packet injection, supported Unicode rendering, unsupported-glyph rejection and long-line wrapping have regression coverage. A generated Unicode PDF was rendered and visually inspected. This does not establish compatibility with the bank's actual XFA form.
+
+## Performance
+
+An initial local benchmark on Node.js 24.19.0 processed 1,000 synthetic records through ingest, validation and summary/CSV/ZIP export in approximately 10.4 seconds. Largest-record rule evaluation was approximately 4.8 ms p95 in Node. The benchmark uses an in-memory database and excludes live CBS delivery. It is not a browser or production performance certification. Re-run `npm run benchmark` for the current implementation and deployment.
+
+## Outstanding acceptance evidence
+
+- Old-application golden outputs and validation shadow parity, because no old application was supplied.
+- Official form/viewer compatibility and all real bank product-specific rules and mappings.
+- Live CBS delivery, independent readback and batch cutover totals.
+- Test-tenant/SSO, retention, WORM audit storage, restore rehearsal and production concurrency/load testing.
+- Approved-model evaluations and reviewed production shadow samples. Auto-apply remains disabled.
+- Full keyboard/screen-reader and WCAG manual acceptance across generated product pages.
+- Container execution, because Docker was unavailable during implementation.
+
+There are no GitHub Actions workflows in this change. The checks are run locally and can later be connected to the organisation's approved CI.

@@ -1,0 +1,31 @@
+{
+  "output": "aaf.pdf",
+  "kind": "pdf",
+  "gate": "aaf",
+  "columns": [
+    {
+      "name": "Legal name",
+      "from": "entity.legalName"
+    },
+    {
+      "name": "ABN",
+      "from": "entity.abn"
+    },
+    {
+      "name": "Address",
+      "from": "address.line1"
+    },
+    {
+      "name": "Suburb",
+      "from": "address.suburb"
+    },
+    {
+      "name": "Postcode",
+      "from": "address.postcode"
+    },
+    {
+      "name": "Tax declaration evidence",
+      "from": "tax.declaration"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "key": "CUST_ID",
+  "required_columns": [
+    "CUST_ID",
+    "CUST_LEGAL_NAME",
+    "CUST_ABN",
+    "ACCOUNTS"
+  ],
+  "fields": [
+    {
+      "from": "CUST_LEGAL_NAME",
+      "to": "entity.legalName",
+      "transform": "trim"
+    },
+    {
+      "from": "CUST_TYPE",
+      "to": "entity.type"
+    },
+    {
+      "from": "CUST_ABN",
+      "to": "entity.abn",
+      "transform": "digitsOnly"
+    },
+    {
+      "from": "EMAIL",
+      "to": "entity.email",
+      "transform": "trim"
+    },
+    {
+      "from": "ADDRESS",
+      "to": "address.line1",
+      "transform": "trim"
+    },
+    {
+      "from": "SUBURB",
+      "to": "address.suburb",
+      "transform": "trim"
+    },
+    {
+      "from": "STATE",
+      "to": "address.state"
+    },
+    {
+      "from": "POSTCODE",
+      "to": "address.postcode"
+    },
+    {
+      "from": "COUNTRY",
+      "to": "address.country"
+    },
+    {
+      "from": "TAX_RESIDENCY",
+      "to": "tax.residency"
+    },
+    {
+      "from": "FOREIGN_TAX",
+      "to": "tax.foreignTax"
+    }
+  ],
+  "groups": [
+    {
+      "from": "ACCOUNTS",
+      "to": "accounts",
+      "fields": [
+        {
+          "from": "PRODUCT",
+          "to": "productCode",
+          "transform": "lookup:bank1ToBank2Product"
+        },
+        {
+          "from": "NUMBER",
+          "to": "accountNumber"
+        },
+        {
+          "from": "BSB",
+          "to": "bsb",
+          "transform": "digitsOnly"
+        },
+        {
+          "from": "OPEN_DATE",
+          "to": "openDate"
+        }
+      ]
+    },
+    {
+      "from": "PEOPLE",
+      "to": "people",
+      "fields": [
+        {
+          "from": "NAME",
+          "to": "name",
+          "transform": "trim"
+        },
+        {
+          "from": "EMAIL",
+          "to": "email"
+        },
+        {
+          "from": "ROLE",
+          "to": "role"
+        }
+      ]
+    },
+    {
+      "from": "SIGNATORIES",
+      "to": "signatories",
+      "fields": [
+        {
+          "from": "NAME",
+          "to": "name",
+          "transform": "trim"
+        }
+      ]
+    }
+  ]
+}
