@@ -7,6 +7,7 @@ import { SharePointAuthority, type Holder } from '../packages/adapters/sharepoin
 import { MigrationService } from '../packages/worker/service';
 import { createApp } from '../packages/server/app';
 import { FakeSharePoint } from './fake-sharepoint';
+import { csvPackageToExtract } from '../packages/adapters/csv-extract';
 import { pack } from './helpers';
 
 // Two app servers, each with its own local working copy, sharing one SharePoint site.
@@ -154,6 +155,49 @@ describe('SharePoint check-out and check-in', () => {
     expect(sp.isCheckedOut('B1-100004')).toBe(false);
     expect(a.store.remote('B1-100004')).toMatchObject({ pending: 0 });
   });
+  it.each(['createFile', 'checkIn', 'deleteLease'])(
+    'resumes publishing after a transient %s failure following upload',
+    async (operation) => {
+      const id = 'B1-100003',
+        lease = (await open(a, id, ana)) as any;
+      sp.failNext(operation, 503);
+      expect(await save(a, id, ana, lease.leaseToken, declare)).toBe('pending');
+      // Only the database holds the retry checkpoint; reconstruct the service before retrying.
+      a.service = new MigrationService(
+        a.store,
+        pack,
+        () => {},
+        undefined,
+        new SharePointAuthority(sp, 'server-a', timing),
+      );
+      await a.service.publishPending();
+      expect(sp.personView(id).data.tax.declaration).toBe('DECL');
+      expect(sp.isCheckedOut(id)).toBe(false);
+      expect(sp.leases.has(id)).toBe(false);
+      expect(a.store.remote(id)).toMatchObject({ pending: 0, token: null, error: null });
+      expect(a.store.exceptions().some((e) => e.code === 'SHAREPOINT_CONFLICT')).toBe(false);
+    },
+  );
+  it('still refuses an outside edit after its own upload succeeded', async () => {
+    const id = 'B1-100003',
+      lease = (await open(a, id, ana)) as any;
+    sp.failNext('checkIn', 503);
+    expect(await save(a, id, ana, lease.leaseToken, declare)).toBe('pending');
+    sp.tamper(id, (r) => (r.data.entity.email = 'outside@example.test'));
+    await a.service.publishPending();
+    expect(a.store.remote(id)).toMatchObject({ error: 'SHAREPOINT_STALE' });
+    expect(JSON.parse(sp.files.get(sp.path(id))!.draft!).data.entity.email).toBe(
+      'outside@example.test',
+    );
+  });
+  it('publishes a source refresh without replacing it with the older checked-in copy', async () => {
+    const input = csvPackageToExtract(pack, csvFiles());
+    input.rows.find((r) => r.CUST_ID === 'B1-100003')!.CUST_LEGAL_NAME = 'Updated Mia Chen';
+    const batch = await a.service.ingest(input, admin);
+    expect(batch.counts.updated).toBe(1);
+    expect(sp.personView('B1-100003').data.entity.legalName).toBe('Updated Mia Chen');
+    expect(a.store.exceptions().some((e) => e.code === 'SHAREPOINT_CONFLICT')).toBe(false);
+  });
   it('a crashed server loses the record after expiry and its late save never overwrites', async () => {
     const lease = (await open(a, 'B1-100005', ana)) as any;
     // Server A goes down holding the check-out. SharePoint's check-out never expires by itself,
@@ -232,7 +276,7 @@ describe('SharePoint check-out and check-in', () => {
       expect(await save(a, r.recordId, ana, lease.leaseToken, declare)).toBe('published');
     }
     const batch = a.store.batches()[0];
-    a.service.releaseBatch(batch.id, admin);
+    await a.service.releaseBatch(batch.id, admin);
     for (let i = 0; i < 40; i++) if (!(await a.service.runOne())) break;
     expect(a.store.list().every((r) => r.state === 'reconciled')).toBe(true);
     for (const r of a.store.list()) expect(sp.personView(r.recordId).state).toBe('reconciled');
@@ -244,7 +288,7 @@ describe('SharePoint check-out and check-in', () => {
     await save(a, 'B1-100010', ana, lease.leaseToken, declare);
     await b.service.syncFromSharePoint();
     await open(b, 'B1-100010', ben);
-    a.service.releaseBatch(a.store.batches()[0].id, admin);
+    await a.service.releaseBatch(a.store.batches()[0].id, admin);
     expect(await a.service.runOne()).toBe(false);
     expect(a.store.load('B1-100010').record.state).toBe('cbs_ready');
   });
@@ -257,6 +301,128 @@ describe('SharePoint check-out and check-in', () => {
       expect(results.filter((r) => 'token' in r)).toHaveLength(1);
       await a.service.authority!.breakLease('B1-100001');
     }
+  });
+});
+
+describe('Shared batch control', () => {
+  it('lets a second server release the imported batch and shares its downloadable outputs', async () => {
+    const batch = a.store.batches()[0];
+    for (const r of a.store.list()) {
+      const lease = (await open(a, r.recordId, ana)) as any;
+      await save(a, r.recordId, ana, lease.leaseToken, declare);
+    }
+    await b.service.syncFromSharePoint();
+    expect(b.store.batch(batch.id).counts).toEqual(batch.counts);
+    expect([...b.service.members(batch.id)].sort()).toEqual(
+      [...a.service.members(batch.id)].sort(),
+    );
+    expect((await b.service.releaseBatch(batch.id, admin)).queued).toBe(10);
+    for (let i = 0; i < 20; i++) if (!(await b.service.runOne())) break;
+    expect(b.store.batch(batch.id).state).toBe('completed');
+    await a.service.syncFromSharePoint();
+    expect(a.store.batch(batch.id).state).toBe('completed');
+    expect(a.service.exportBatch(batch.id).files).toEqual(b.service.exportBatch(batch.id).files);
+    for (const record of a.store.list()) {
+      expect(record.state).toBe('reconciled');
+      expect(a.store.output(record.recordId)!.digest).toBe(b.store.output(record.recordId)!.digest);
+    }
+    expect((await a.service.releaseBatch(batch.id, admin)).queued).toBe(0);
+  });
+  it('honours a pause from another server before processing a queued job', async () => {
+    const id = 'B1-100003',
+      batch = a.store.batches()[0],
+      lease = (await open(a, id, ana)) as any;
+    await save(a, id, ana, lease.leaseToken, declare);
+    await a.service.releaseBatch(batch.id, admin);
+    await b.service.batchAction(batch.id, 'pause', 'Review source controls', admin);
+    expect(await a.service.runOne()).toBe(false);
+    expect(a.store.load(id).record.state).toBe('cbs_ready');
+    expect(a.store.batch(batch.id).state).toBe('on_hold');
+    await b.service.batchAction(batch.id, 'resume', 'Source controls checked', admin);
+    a.store.now = () => Date.now() + 2000;
+    expect(await a.service.runOne()).toBe(true);
+    expect(a.store.load(id).record.state).toBe('reconciled');
+  });
+  it('serialises concurrent batch commands, including requests on the same server', async () => {
+    const id = a.store.batches()[0].id;
+    for (const other of [a, b]) {
+      const results = await Promise.allSettled([
+        a.service.releaseBatch(id, admin),
+        other.service.batchAction(id, 'pause', 'Concurrent review', admin),
+      ]);
+      expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+      const refused = results.find((r) => r.status === 'rejected') as PromiseRejectedResult;
+      expect(refused.reason.code).toBe('LEASE_HELD');
+    }
+  });
+  it('retries a batch check-in from the durable checkpoint', async () => {
+    const id = a.store.batches()[0].id;
+    sp.failNext('checkIn', 503);
+    await expect(a.service.batchAction(id, 'pause', 'Review source', admin)).rejects.toMatchObject({
+      code: 'TRANSIENT',
+    });
+    expect(a.store.remote(`batch:${id}`)).toMatchObject({ pending: 1 });
+    await a.service.publishPending();
+    await b.service.syncFromSharePoint();
+    expect(b.store.batch(id)).toMatchObject({ state: 'on_hold', reason: 'Review source' });
+    expect(sp.leases.size).toBe(0);
+  });
+  it('keeps a newer batch decision after an expired publisher returns', async () => {
+    const id = a.store.batches()[0].id;
+    sp.failNext('checkIn', 503);
+    await expect(
+      a.service.batchAction(id, 'pause', 'Old pending pause', admin),
+    ).rejects.toMatchObject({ code: 'TRANSIENT' });
+    sp.advance(pack.operations.workerLeaseMs + 1000);
+    await b.service.batchAction(id, 'resume', 'New review completed', admin);
+    await expect(a.service.publishPending()).rejects.toMatchObject({
+      code: 'SHAREPOINT_LEASE_LOST',
+    });
+    await expect(a.service.publishPending()).rejects.toMatchObject({ code: 'SHAREPOINT_STALE' });
+    expect(a.store.batch(id).state).toBe('ready');
+    expect(a.store.remote(`batch:${id}`)).toMatchObject({ pending: 0, token: null });
+    expect(
+      a.store.traces({ batchId: id }).some((t) => t.decision === 'shared_batch_conflict'),
+    ).toBe(true);
+    await a.service.publishPending();
+    await a.service.batchAction(id, 'pause', 'Fresh reviewed decision', admin);
+    await b.service.syncFromSharePoint();
+    expect(b.store.batch(id).reason).toBe('Fresh reviewed decision');
+  });
+  it('publishes pre-upgrade batches and emits an update when only batch state changes', async () => {
+    const batch = a.store.batches()[0],
+      key = `batch:${batch.id}`;
+    delete batch.version;
+    a.store.db.prepare('UPDATE batches SET body=? WHERE id=?').run(JSON.stringify(batch), batch.id);
+    a.store.db.prepare('DELETE FROM remote WHERE record_id=?').run(key);
+    sp.files.delete(`batches/${batch.id}.json`);
+    await a.service.publishPending();
+    await b.service.syncFromSharePoint();
+    expect(b.store.batch(batch.id).version).toBe(1);
+    let changes = 0;
+    b.service.changed = () => changes++;
+    await a.service.batchAction(batch.id, 'pause', 'Shared status update', admin);
+    await b.service.syncFromSharePoint();
+    expect(b.store.batch(batch.id).state).toBe('on_hold');
+    expect(changes).toBe(1);
+  });
+  it('rejects corrupted shared outputs and releases a failed checkout', async () => {
+    const id = 'B1-100003',
+      batch = a.store.batches()[0],
+      lease = (await open(a, id, ana)) as any;
+    await save(a, id, ana, lease.leaseToken, declare);
+    await b.service.syncFromSharePoint();
+    await a.service.releaseBatch(batch.id, admin);
+    await a.service.runOne();
+    const artifact = [...sp.files.values()].find((f) => f.path.startsWith(`outputs/${id}-`))!;
+    const corrupt = JSON.parse(artifact.published);
+    corrupt.bytes = Buffer.from('corrupted bundle').toString('base64');
+    artifact.published = JSON.stringify(corrupt);
+    await expect(b.service.syncFromSharePoint()).rejects.toMatchObject({ code: 'OUTPUT_MISMATCH' });
+    expect(b.store.load(id).record.state).toBe('cbs_ready');
+    await expect(open(b, id, ben)).rejects.toMatchObject({ code: 'OUTPUT_MISMATCH' });
+    expect(sp.leases.has(id)).toBe(false);
+    expect(sp.isCheckedOut(id)).toBe(false);
   });
 });
 
@@ -291,6 +457,15 @@ describe('SharePoint through the HTTP API', () => {
           headers: { cookie, 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }).then((r) => r.json());
+      const administrator = await login(base[1], 'admin'),
+        batchId = a.store.batches()[0].id;
+      expect(await post(base[1], administrator, `/batches/${batchId}/release`, {})).toEqual({
+        queued: 0,
+      });
+      const overview = await (
+        await fetch(`${base[1]}/overview`, { headers: { cookie: administrator } })
+      ).json();
+      expect(overview.batches.some((batch: { id: string }) => batch.id === batchId)).toBe(true);
       const lease = await post(base[0], one, '/records/B1-100002/lease', {});
       expect(lease.leaseToken).toBeDefined();
       expect(await post(base[1], two, '/records/B1-100002/lease', {})).toMatchObject({

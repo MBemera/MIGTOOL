@@ -1,5 +1,5 @@
-import { randomUUID } from 'node:crypto';
-import { type Envelope, type Pack, type Trace, PlatformError } from '../core/model';
+import { createHash, randomUUID } from 'node:crypto';
+import { type Batch, type Envelope, type Pack, type Trace, PlatformError } from '../core/model';
 
 // SharePoint as the record authority (DEC-01, Graph route). Each customer is one JSON file in a
 // document library; a SharePoint list holds the leases. The app works only through Microsoft
@@ -50,6 +50,14 @@ export interface GraphClient {
 const conflict = (e: unknown) => e instanceof GraphError && [409, 412].includes(e.httpStatus);
 export type Holder = { id: string; name: string; kind: 'human' | 'worker' };
 export type CheckedOut = { token: string; file?: FileRef & { body: string } };
+export type SharedBatch = { batch: Batch; members: string[] };
+export type SharedOutput = {
+  recordVersion: number;
+  key: string;
+  digest: string;
+  bytes: string;
+  expected: string;
+};
 
 export class SharePointAuthority {
   constructor(
@@ -59,6 +67,9 @@ export class SharePointAuthority {
   ) {}
   path(recordId: string) {
     return `records/${encodeURIComponent(recordId)}.json`;
+  }
+  private batchPath(id: string) {
+    return `batches/${encodeURIComponent(id)}.json`;
   }
   private leaseFields(recordId: string, holder: Holder, token: string): LeaseFields {
     const now = this.graph.now();
@@ -82,6 +93,7 @@ export class SharePointAuthority {
   async checkOut(
     recordId: string,
     holder: Holder,
+    path = this.path(recordId),
   ): Promise<CheckedOut | { heldBy: string; since: string }> {
     let item = await this.graph.getLease(recordId);
     if (item && item.fields.Expires > this.graph.now()) return this.heldBy(item);
@@ -97,13 +109,13 @@ export class SharePointAuthority {
       throw error;
     }
     try {
-      const existing = await this.graph.getFile(this.path(recordId));
+      const existing = await this.graph.getFile(path);
       if (!existing) return { token };
       await this.graph.checkOut(existing.id).catch((error) => {
         // Taking over an expired lease: the file is still checked out to this application.
         if (!(error instanceof GraphError && error.httpStatus === 423)) throw error;
       });
-      const file = (await this.graph.getFile(this.path(recordId)))!;
+      const file = (await this.graph.getFile(path))!;
       return { token, file: { ...file, body: await this.graph.readFile(file.id) } };
     } catch (error) {
       await this.releaseLease(recordId, token).catch(() => {});
@@ -134,8 +146,8 @@ export class SharePointAuthority {
       throw error;
     }
   }
-  // Release with changes: upload only if the file is unchanged since check-out, add the trace,
-  // check in, and only then free the lease. Any failure leaves the file checked out and unchanged.
+  // A retry may see its own successful upload. Compare the complete body before reusing it;
+  // a different body still needs the original ETag, so outside edits are never overwritten.
   async publish(
     recordId: string,
     token: string,
@@ -143,15 +155,49 @@ export class SharePointAuthority {
     checkedOutETag: string | undefined,
     trace: Trace[],
   ): Promise<string> {
-    const item = await this.assertHeld(recordId, token),
-      body = JSON.stringify(record, null, 2) + '\n';
+    return this.publishDocument(
+      recordId,
+      token,
+      this.path(recordId),
+      JSON.stringify(record, null, 2) + '\n',
+      checkedOutETag,
+      `MIGTOOL version ${record.version}`,
+      async () => {
+        if (!trace.length) return;
+        const body = JSON.stringify(trace, null, 2) + '\n',
+          digest = createHash('sha256').update(body).digest('hex');
+        await this.putImmutable(
+          `trace/${encodeURIComponent(recordId)}/v${record.version}-${digest}.json`,
+          body,
+        );
+      },
+    );
+  }
+  private async publishDocument(
+    leaseId: string,
+    token: string,
+    path: string,
+    body: string,
+    checkedOutETag: string | undefined,
+    comment: string,
+    beforeCheckIn = async () => {},
+  ): Promise<string> {
+    await this.assertHeld(leaseId, token);
     let file: FileRef;
     try {
-      const existing = await this.graph.getFile(this.path(recordId));
-      if (existing && !checkedOutETag) throw new GraphError(409, 'File appeared after check-out');
-      file = existing
-        ? await this.graph.replaceFile(existing.id, body, checkedOutETag!)
-        : await this.graph.createFile(this.path(recordId), body);
+      const existing = await this.graph.getFile(path);
+      if (existing && (await this.graph.readFile(existing.id)) === body) {
+        // Check-in may also have succeeded with its response lost. Ensure a check-out exists.
+        await this.graph.checkOut(existing.id).catch((error) => {
+          if (!(error instanceof GraphError && error.httpStatus === 423)) throw error;
+        });
+        file = existing;
+      } else {
+        if (existing && !checkedOutETag) throw new GraphError(409, 'File appeared after check-out');
+        file = existing
+          ? await this.graph.replaceFile(existing.id, body, checkedOutETag!)
+          : await this.graph.createFile(path, body);
+      }
     } catch (error) {
       if (conflict(error))
         throw new PlatformError(
@@ -161,24 +207,68 @@ export class SharePointAuthority {
         );
       throw error;
     }
-    if (trace.length)
-      await this.graph.createFile(
-        `trace/${encodeURIComponent(recordId)}/v${record.version}-${this.serverId}-${randomUUID().slice(0, 8)}.json`,
-        JSON.stringify(trace, null, 2) + '\n',
-      );
-    await this.graph.checkIn(
-      file.id,
-      `MIGTOOL version ${record.version} (${item.fields.HolderName})`,
-    );
-    const published = (await this.graph.getFile(this.path(recordId)))!;
-    await this.graph.deleteLease(item.id, item.eTag).catch(() => {});
+    await beforeCheckIn();
+    const item = await this.assertHeld(leaseId, token);
+    await this.graph.checkIn(file.id, `${comment} (${item.fields.HolderName})`);
+    const published = (await this.graph.getFile(path))!;
+    await this.graph.deleteLease(item.id, item.eTag);
     return published.eTag;
   }
+  private async putImmutable(path: string, body: string) {
+    try {
+      const existing = await this.graph.getFile(path);
+      if (existing) {
+        if ((await this.graph.readFile(existing.id)) === body) return;
+        throw new GraphError(409, `Immutable file differs: ${path}`);
+      }
+      await this.graph.createFile(path, body);
+    } catch (error) {
+      if (!conflict(error)) throw error;
+      const existing = await this.graph.getFile(path);
+      if (!existing || (await this.graph.readFile(existing.id)) !== body) throw error;
+    }
+  }
+  checkOutBatch(id: string) {
+    return this.checkOut(
+      `batch:${id}`,
+      { id: 'pipeline-worker', name: 'MIGTOOL batch control', kind: 'worker' },
+      this.batchPath(id),
+    );
+  }
+  publishBatch(id: string, token: string, value: SharedBatch, etag?: string) {
+    return this.publishDocument(
+      `batch:${id}`,
+      token,
+      this.batchPath(id),
+      JSON.stringify(value, null, 2) + '\n',
+      etag,
+      `MIGTOOL batch version ${value.batch.version ?? 0}`,
+    );
+  }
+  abandonBatch(id: string, token: string) {
+    return this.abandon(`batch:${id}`, token, this.batchPath(id));
+  }
+  private outputPath(recordId: string, digest: string) {
+    if (!/^[a-f0-9]{64}$/.test(digest))
+      throw new PlatformError('OUTPUT_MISMATCH', 'Invalid shared output digest', 409);
+    return `outputs/${encodeURIComponent(recordId)}-${digest}.json`;
+  }
+  async putOutput(recordId: string, output: SharedOutput) {
+    await this.putImmutable(
+      this.outputPath(recordId, output.digest),
+      JSON.stringify(output, null, 2) + '\n',
+    );
+  }
+  async readOutput(recordId: string, digest: string): Promise<SharedOutput> {
+    const file = await this.graph.getFile(this.outputPath(recordId, digest));
+    if (!file) throw new PlatformError('OUTPUT_MISSING', 'Shared delivery output is missing', 409);
+    return JSON.parse(await this.graph.readFile(file.id));
+  }
   // Release without changes: undo the check-out and free the lease.
-  async abandon(recordId: string, token: string) {
+  async abandon(recordId: string, token: string, path = this.path(recordId)) {
     const item = await this.graph.getLease(recordId);
     if (!item || item.fields.Token !== token) return;
-    await this.undoCheckOut(recordId);
+    await this.undoCheckOut(recordId, path);
     await this.releaseLease(recordId, token);
   }
   async breakLease(recordId: string) {
@@ -186,8 +276,8 @@ export class SharePointAuthority {
     const item = await this.graph.getLease(recordId);
     if (item) await this.graph.deleteLease(item.id, item.eTag);
   }
-  private async undoCheckOut(recordId: string) {
-    const file = await this.graph.getFile(this.path(recordId));
+  private async undoCheckOut(recordId: string, path = this.path(recordId)) {
+    const file = await this.graph.getFile(path);
     if (file) await this.graph.discardCheckOut(file.id);
   }
   private async releaseLease(recordId: string, token: string) {
@@ -197,15 +287,19 @@ export class SharePointAuthority {
   // Published records and the ids currently leased, for keeping local copies current.
   async snapshot() {
     const now = this.graph.now();
-    const [files, leases] = await Promise.all([
+    const [files, leases, batches] = await Promise.all([
       this.graph.listFiles('records'),
       this.graph.listLeases(),
+      this.graph.listFiles('batches'),
     ]);
     return {
       files: files
         .filter((f) => f.name.endsWith('.json'))
         .map((f) => ({ ...f, recordId: decodeURIComponent(f.name.slice(0, -5)) })),
       leased: new Set(leases.filter((l) => l.fields.Expires > now).map((l) => l.fields.Title)),
+      batches: batches
+        .filter((f) => f.name.endsWith('.json'))
+        .map((f) => ({ ...f, batchId: decodeURIComponent(f.name.slice(0, -5)) })),
     };
   }
   async read(id: string) {
@@ -218,6 +312,7 @@ export class SharePointAuthority {
 export class HttpGraphClient implements GraphClient {
   private token?: { value: string; expires: number };
   private clock = { remote: Date.now(), local: Date.now() };
+  private folders = new Map<string, string>();
   constructor(
     private config: {
       tenantId: string;
@@ -280,8 +375,44 @@ export class HttpGraphClient implements GraphClient {
     return response;
   }
   private drivePath(path: string) {
-    const folder = this.config.folder.replace(/^\/|\/$/g, '');
+    const folder = this.config.folder.split('/').filter(Boolean).map(encodeURIComponent).join('/');
     return `/drives/${this.config.driveId}/root:/${folder}/${path}`;
+  }
+  private async ensureParentFolders(path: string) {
+    const segments = [
+      ...this.config.folder.split('/').filter(Boolean),
+      ...path.split('/').slice(0, -1).map(decodeURIComponent),
+    ];
+    let parent = `/drives/${this.config.driveId}/root`,
+      current = '';
+    for (const name of segments) {
+      current += `${current ? '/' : ''}${encodeURIComponent(name)}`;
+      const location = `/drives/${this.config.driveId}/root:/${current}`;
+      let id = this.folders.get(location);
+      if (!id) {
+        let item: { id: string; folder?: unknown };
+        try {
+          item = await (await this.request('GET', location)).json();
+        } catch (error) {
+          if (!(error instanceof GraphError && error.httpStatus === 404)) throw error;
+          try {
+            item = await (
+              await this.request('POST', `${parent}/children`, {
+                json: { name, folder: {}, '@microsoft.graph.conflictBehavior': 'fail' },
+              })
+            ).json();
+          } catch (createError) {
+            if (!(createError instanceof GraphError && createError.httpStatus === 409))
+              throw createError;
+            item = await (await this.request('GET', location)).json();
+          }
+        }
+        if (!item.folder) throw new GraphError(409, `${current} exists but is not a folder`);
+        id = item.id;
+        this.folders.set(location, id);
+      }
+      parent = `/drives/${this.config.driveId}/items/${id}`;
+    }
   }
   private items = () => `/sites/${this.config.siteId}/lists/${this.config.leaseListId}/items`;
   async getFile(path: string) {
@@ -297,6 +428,7 @@ export class HttpGraphClient implements GraphClient {
     return (await this.request('GET', `/drives/${this.config.driveId}/items/${id}/content`)).text();
   }
   async createFile(path: string, body: string) {
+    await this.ensureParentFolders(path);
     const item = (await (
       await this.request(
         'PUT',

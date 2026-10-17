@@ -4,6 +4,10 @@ With SharePoint configured, each customer record is one JSON file in a SharePoin
 
 The app talks to SharePoint only through Microsoft Graph. It never goes through the OneDrive sync client, so a check-out is visible to everyone immediately, and a record is only free again once SharePoint confirms the new version is saved.
 
+Batch metadata and membership are shared in `batches/<batchId>.json`. Batch commands and pipeline jobs take a separate batch check-out, so another server can release a batch and its pause or resume decision is respected before the next job. Jobs stay in the local database of the server that queued them; another server can release remaining ready records after a failure. Existing local batches are published when the worker next retries pending work.
+
+Delivery artifacts are stored once in `outputs/<recordId>-<digest>.json`. They contain the bundle and mapped rows. Records identify their current artifact and delivery key. Other servers verify the bundle checksum and cache it before making the new record version visible. The load folder must be shared or accessible on every worker for CBS readback and final batch control totals.
+
 ## How a record is worked on
 
 | Step                 | What happens                                                                                                                                                                                                                                          | Effect                                                                                                                                                         |
@@ -24,18 +28,21 @@ Every 15 seconds each server:
 ## Failure handling
 
 - **A server crashes holding a record.** SharePoint check-outs never expire on their own, but the lease does after 15 minutes without renewal (5 for workers). Another server can then take the record over. The crashed server's late save is refused (`SHAREPOINT_LEASE_LOST`). Its local copy is kept in `remote_conflicts`, a tier 3 `SHAREPOINT_CONFLICT` exception is raised, and SharePoint is not overwritten.
-- **An upload or check-in fails.** The file stays checked out with its previous content, and the lease stays held. The record stays closed on that server ("SharePoint publish in progress") and is retried until SharePoint confirms.
+- **An upload or check-in fails.** The checked-in version remains visible and the lease stays held. The record stays closed on that server ("SharePoint publish in progress"). Retries compare the complete uploaded body with the intended version and resume trace/check-in work when it matches. A different body still needs the original version stamp. Retry checkpoints survive restart.
+- **A pending batch publisher loses its lease.** It takes a fresh check-out before retrying. If another server published a different decision, the newer shared version wins and both decisions are recorded in a conflict trace. The old decision is never replayed over it.
 - **A person edits in SharePoint.** This is blocked while the record is checked out. Changes made while it was not checked out are pulled in before the next check-out.
 - **An edit gets past the check-out**, for example through an administrator override. The version-stamp check rejects the app's upload (`SHAREPOINT_STALE`). SharePoint keeps that edit, and the app's change goes to review.
 - **An administrator breaks a lease.** This undoes the check-out and deletes the lease on every server. The former holder's save is then refused, and their change goes to review.
 - **SharePoint is slow or throttled** (HTTP 429/5xx). This is treated as transient: the pipeline's normal retries apply, and nothing is half-written.
 
-Nothing is ever deleted from SharePoint by the app. Trace files are created once and never edited.
+Record, batch, output and trace files are never deleted from SharePoint by the app. Lease-list entries are deleted when released. Output and trace files are created once and never edited.
+
+CSV import, batch export and revalidation commands use the same SharePoint settings as the worker. Imports publish records and membership, exports first synchronise the shared working copy, and revalidation respects remote check-outs. Partial settings stop these commands before creating a database.
 
 ## Setup (IT)
 
 1. **App registration** in Entra ID. Grant the Microsoft Graph application permission `Sites.Selected` with admin consent, then grant the app `write` on the migration site only. Create a client secret or certificate.
-2. **Document library** for records, for example `Migration`. Create a folder for the app, for example `MIGTOOL`. The app creates `records/` and `trace/` inside it. Turning on versioning is recommended. "Require check out" may be on or off.
+2. **Document library** for records, for example `Migration`. Create a folder for the app, for example `MIGTOOL`. The app creates `records/`, `batches/`, `outputs/`, `trace/` and their required parent folders through [Graph folder creation](https://learn.microsoft.com/en-us/graph/api/driveitem-post-children?view=graph-rest-1.0). Folder races reuse the existing folder without renaming it. Turning on versioning is recommended. "Require check out" may be on or off.
 3. **Lease list**, for example `MIGTOOL Leases`. Set its columns:
    - `Title`: indexed, with **Enforce unique values** on. This is what stops two servers taking the same record.
    - `Holder`, `HolderName`, `Server`, `Token`, `Acquired`, `Expires`: single line of text.

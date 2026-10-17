@@ -124,7 +124,7 @@ describe('ingest and durable workflow', () => {
     );
     expect(batch.state).toBe('on_hold');
     expect(store.list()).toHaveLength(0);
-    expect(() => service.batchAction(batch.id, 'resume', 'Ignore totals', human)).toThrow(
+    await expect(service.batchAction(batch.id, 'resume', 'Ignore totals', human)).rejects.toThrow(
       'Correct',
     );
   });
@@ -170,7 +170,7 @@ describe('ingest and durable workflow', () => {
       'operator',
     );
     expect(saved.record.state).toBe('cbs_ready');
-    expect(service.releaseBatch(batch.id, human).queued).toBe(1);
+    expect((await service.releaseBatch(batch.id, human)).queued).toBe(1);
     await service.runOne();
     expect(store.load('SYN-0001').record.state).toBe('reconciled');
     const traces = store.traces({ recordId: 'SYN-0001' });
@@ -196,7 +196,7 @@ describe('ingest and durable workflow', () => {
       if (!('leaseToken' in lease)) throw new Error();
       loaded.record.data = readyRecord().data;
       svc.edit('SYN-0001', loaded.record.data, loaded.etag, lease.leaseToken, human, 'operator');
-      svc.releaseBatch(batch.id, human);
+      await svc.releaseBatch(batch.id, human);
       local.close();
       local = new Store(path, pack);
       svc = new MigrationService(local, pack);

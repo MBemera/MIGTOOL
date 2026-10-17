@@ -20,6 +20,12 @@ import { transition } from '../core/engine';
 import { assertNotSynced } from './files';
 
 type User = { id: string; username: string; role: Role; disabled: boolean };
+export type StoredOutput = {
+  record_version: number;
+  bytes: Uint8Array;
+  digest: string;
+  expected: string;
+};
 export class Store {
   db: DatabaseSync;
   private transactionDepth = 0;
@@ -437,9 +443,35 @@ export class Store {
     ).map((r) => JSON.parse(r.body));
   }
   putBatch(batch: Batch) {
+    const previous = this.db.prepare('SELECT body FROM batches WHERE id=?').get(batch.id) as
+      | { body: string }
+      | undefined;
+    batch.version = (previous ? (JSON.parse(previous.body).version ?? 0) : 0) + 1;
     this.db
       .prepare('INSERT INTO batches VALUES(?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body')
       .run(batch.id, JSON.stringify(batch));
+  }
+  replaceBatch(batch: Batch, members: string[]) {
+    this.transaction(() => {
+      this.db
+        .prepare('INSERT INTO batches VALUES(?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body')
+        .run(batch.id, JSON.stringify(batch));
+      this.db.prepare('DELETE FROM batch_records WHERE batch_id=?').run(batch.id);
+      const insert = this.db.prepare('INSERT INTO batch_records VALUES(?,?)');
+      for (const id of new Set(members)) insert.run(batch.id, id);
+    });
+  }
+  output(id: string): StoredOutput | undefined {
+    return this.db.prepare('SELECT * FROM outputs WHERE record_id=?').get(id) as
+      | StoredOutput
+      | undefined;
+  }
+  putOutput(id: string, output: StoredOutput) {
+    this.db
+      .prepare(
+        'INSERT INTO outputs VALUES(?,?,?,?,?) ON CONFLICT(record_id) DO UPDATE SET record_version=excluded.record_version,bytes=excluded.bytes,digest=excluded.digest,expected=excluded.expected',
+      )
+      .run(id, output.record_version, output.bytes, output.digest, output.expected);
   }
   batch(id: string): Batch {
     const row = this.db.prepare('SELECT body FROM batches WHERE id=?').get(id) as any;
