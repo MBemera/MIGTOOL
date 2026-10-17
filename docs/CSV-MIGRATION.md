@@ -1,6 +1,6 @@
 # Bank 1 CSV extract to Bank 2 CBS load
 
-This is the end-to-end path for a Bank 1 CSV extract: verify the files, convert them into records, validate, resolve gaps, export the Bank 2 CBS load files, read them back and reconcile. All data in `fixtures/bank1-csv` is invented for testing. Names, ABNs, account numbers and addresses do not belong to real customers.
+This is the end-to-end path for a Bank 1 CSV extract: verify the files, convert them into records, validate, resolve gaps, export the Bank 2 CBS load files, read them back and reconcile. All data in `fixtures/sample-csv` is invented for testing. Names, ABNs, account numbers and addresses do not belong to real customers.
 
 ## Example extract: 10 customers
 
@@ -82,7 +82,7 @@ Set `EXTRACT_LANDING` to the synced landing folder and `CBS_OUTBOX` to the synce
 ### Command line
 
 ```sh
-npm run import:csv -- fixtures/bank1-csv
+npm run import:csv -- fixtures/sample-csv
 npm run export:batch -- <batchId> var/cbs-batches
 ```
 

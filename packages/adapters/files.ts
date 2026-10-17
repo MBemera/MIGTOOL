@@ -51,7 +51,7 @@ export function prepareOutputFolder(root: string, staging = join(root, STAGING))
   if (isSynced(root) && inside(staging, root))
     throw new PlatformError(
       'STAGING_INSIDE_SYNC',
-      `${root} is synced, so its staging area must be outside it. Set CBS_STAGING to a local folder on the same drive.`,
+      `${root} is synced, so its staging area must be outside it. Set LOAD_STAGING to a local folder on the same drive.`,
       500,
     );
   assertNotSynced(staging, 'The staging area');

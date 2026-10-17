@@ -1750,7 +1750,7 @@ function App() {
                                     href={`/api/batches/${encodeURIComponent(b.id)}/cbs-export`}
                                     download
                                   >
-                                    CBS load files
+                                    Load files
                                   </a>
                                 )}
                               </td>
