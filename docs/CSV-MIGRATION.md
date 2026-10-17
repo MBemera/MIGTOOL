@@ -75,6 +75,10 @@ Row-level faults, such as a duplicate customer key or an unknown product code, r
 4. In **Batch control**, select **Release ready**. The worker exports each record, writes its CBS load folder, reads it back and reconciles.
 5. Select **CBS load files** to download the combined `Customer_Create.csv`, `Account_Register.csv` and `User_Create.csv` with a manifest of row counts and SHA-256 hashes.
 
+### OneDrive landing folder
+
+Set `EXTRACT_LANDING` to the synced landing folder and `CBS_OUTBOX` to the synced load folder. Each extract arrives as its own subfolder. It then appears under **Import extract → Landing folder** with an **Import** button. See [Operations](OPERATIONS.md#onedrive-folders-temp-files-and-sync-conflicts) for how files are protected.
+
 ### Command line
 
 ```sh

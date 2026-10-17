@@ -139,6 +139,10 @@ function App() {
     [assignee, setAssignee] = useState('all'),
     [traceSearch, setTraceSearch] = useState('');
   const [importData, setImportData] = useState<any>(null),
+    [landing, setLanding] = useState<{
+      configured: boolean;
+      packages: { name: string; modifiedAt: string }[];
+    } | null>(null),
     [csvImport, setCsvImport] = useState<{ files: Record<string, string>; name: string } | null>(
       null,
     ),
@@ -203,6 +207,7 @@ function App() {
         .then(setTrace)
         .catch(fail);
     if (view === 'admin' && user?.role === 'admin') api('/users').then(setUsers).catch(fail);
+    if (view === 'import' && user?.role === 'admin') api('/landing').then(setLanding).catch(fail);
   }, [view, user?.id, traceSearch]);
   useEffect(() => {
     const activity = () => {
@@ -1380,6 +1385,48 @@ function App() {
                         <span>JSON / SYNTHETIC DOMAIN PACK</span>
                       </div>
                       <div className="import-body">
+                        {landing?.configured && (
+                          <>
+                            <div className="step-label">LANDING FOLDER (ONEDRIVE)</div>
+                            <p>
+                              Extract packages waiting in the landing folder. Files are only read;
+                              an open, half-synced or conflicting file stops the import with the
+                              reason.
+                            </p>
+                            {landing.packages.length ? (
+                              <ul className="landing-list">
+                                {landing.packages.map((p) => (
+                                  <li key={p.name}>
+                                    <span>
+                                      <strong>{p.name}</strong>{' '}
+                                      <small>control file {date(p.modifiedAt)}</small>
+                                    </span>
+                                    <button
+                                      disabled={busy || !isAdmin}
+                                      onClick={() =>
+                                        run(async () => {
+                                          tell(`Importing ${p.name} from the landing folder...`);
+                                          const result = await api('/ingest/landing', 'POST', {
+                                            package: p.name,
+                                          });
+                                          await refresh();
+                                          setView('batches');
+                                          tell(
+                                            `Import ${label(result.state).toLowerCase()}: ${result.counts.created} created, ${result.counts.updated} updated, ${result.counts.skipped} unchanged, ${result.counts.rejected} rejected.`,
+                                          );
+                                        })
+                                      }
+                                    >
+                                      Import {p.name}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p>No extract packages are waiting.</p>
+                            )}
+                          </>
+                        )}
                         <div className="step-label">1A. BANK 1 CSV EXTRACT PACKAGE</div>
                         <p>
                           Select every file of the package together: <code>customers.csv</code>,{' '}

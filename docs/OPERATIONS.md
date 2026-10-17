@@ -4,7 +4,7 @@
 
 The server serves the built React interface and authenticated API on port 3001. It also runs one delivery-queue loop. `npm run worker` can run an additional worker against the same local SQLite database; leases and conditional writes prevent interleaved edits. All processes must use the same configuration release.
 
-Use local persistent disk for SQLite. Do not place the database, WAL or shared-memory file inside OneDrive, SharePoint sync, a network filesystem or an ephemeral container layer. The server, worker and scripts refuse to start when the database, CBS load folder or batch export folder is inside a sync client folder (`OneDrive`, `OneDrive - <org>`, `SharePoint`, `Dropbox`, `Google Drive`, `iCloud Drive`, or the paths in the `OneDrive*` environment variables). This backend is intended for one host. A multi-host deployment needs a database adapter with equivalent transaction, lease and version semantics.
+Use local persistent disk for SQLite. The database and the staging area are refused inside a sync client folder (`OneDrive`, `OneDrive - <org>`, `SharePoint`, `Dropbox`, `Google Drive`, `iCloud Drive`, or the paths in the `OneDrive*` environment variables), because SQLite's WAL and shared-memory files cannot survive a sync client. The extract landing folder and the CBS load folder may be in OneDrive or SharePoint: see below.
 
 Imports are committed as a batch transaction. Input is durably queued first, so an abrupt process failure leaves a replayable import. The local synchronous engine can occupy the request process during large imports. Production load and the two-second lease-visibility target need verification on the actual deployment, or imports should run in a separate service with an appropriate database.
 
@@ -12,32 +12,49 @@ The queue stores each record's stage in the record plus output hashes and idempo
 
 ## Environment
 
-| Variable                     | Purpose                                                                                   |
-| ---------------------------- | ----------------------------------------------------------------------------------------- |
-| `HOST`                       | Defaults to `127.0.0.1`. Explicit demo refuses a public bind.                             |
-| `PORT`                       | Defaults to `3001`.                                                                       |
-| `DATABASE_PATH`              | Normal workspace database, defaults to `var/migtool.sqlite`.                              |
-| `MIGTOOL_ADMIN_USER`         | Initial admin username, defaults to `admin`.                                              |
-| `MIGTOOL_ADMIN_PASSWORD`     | Required on the first normal start; minimum 12 characters.                                |
-| `APP_ORIGIN`                 | Exact browser origin allowed for mutations. Set the HTTPS origin for a shared deployment. |
-| `NODE_ENV`                   | Set to `production` for secure cookies behind HTTPS.                                      |
-| `MIGTOOL_DEMO_DATABASE_PATH` | Optional isolated demo/test database location.                                            |
-| `CBS_OUTBOX`                 | Bank 2 CBS load folder. Defaults to `cbs-outbox` beside the database.                     |
+| Variable                     | Purpose                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| `HOST`                       | Defaults to `127.0.0.1`. Explicit demo refuses a public bind.                                       |
+| `PORT`                       | Defaults to `3001`.                                                                                 |
+| `DATABASE_PATH`              | Normal workspace database, defaults to `var/migtool.sqlite`.                                        |
+| `MIGTOOL_ADMIN_USER`         | Initial admin username, defaults to `admin`.                                                        |
+| `MIGTOOL_ADMIN_PASSWORD`     | Required on the first normal start; minimum 12 characters.                                          |
+| `APP_ORIGIN`                 | Exact browser origin allowed for mutations. Set the HTTPS origin for a shared deployment.           |
+| `NODE_ENV`                   | Set to `production` for secure cookies behind HTTPS.                                                |
+| `MIGTOOL_DEMO_DATABASE_PATH` | Optional isolated demo/test database location.                                                      |
+| `CBS_OUTBOX`                 | Bank 2 CBS load folder; may be in OneDrive. Defaults to `cbs-outbox` beside the database.           |
+| `CBS_STAGING`                | Local staging folder, on the same drive as `CBS_OUTBOX`. Defaults to `staging` beside the database. |
+| `EXTRACT_LANDING`            | Bank 1 extract landing folder; may be in OneDrive. One subfolder per extract package.               |
 
 Initial administrator variables only bootstrap an empty user database. Changing them does not rotate an existing account password. Do not run demo mode against real data. `.env` and all databases are ignored by git.
 
 The default operating thresholds live in `config/operations.yaml`, are validated at startup and are included in configuration fingerprints. Human renewal runs every five minutes while active. The UI warns at 25 minutes and releases after 30 minutes of inactivity. Drafts remain in session storage for that user and tab. A stale draft retains its original ETag, so it cannot silently overwrite a newer version.
 
-## Temp files, duplicates and sync conflicts
+## OneDrive folders, temp files and sync conflicts
 
-The original tool's sync faults (section 10.1 of the specification) cannot occur on these paths:
+Operation relies on two OneDrive (or SharePoint-synced) folders: the Bank 1 extract landing folder and the Bank 2 CBS load folder. Both are supported. Records, leases and the audit trail stay in the database on local disk, which is the one authority per record (P6). Sync faults in the original tool (section 10.1) came from several people writing the same files through the sync client. That cannot happen here, because the app never edits a file in a synced folder.
 
-- **One authority per record.** Records, leases and traces live in one SQLite database written in transactions. Two editors are stopped by atomic leases, and stale saves are rejected by version checks. Nothing is written through a sync client or the browser File System Access API, so no `.crswap` files are created.
-- **Load folders appear complete or not at all.** Every delivery is built in `<outbox>/.staging/<id>/`, flushed to disk, then renamed into place in one step. A crash part-way leaves only staging, which is deleted at start-up. Readers and the CBS loader must ignore dot-folders.
-- **No overwrites, so no conflict copies.** Re-delivering identical content is a no-op. Different content under an existing name is an error, never a second copy. Folder names include the record's output hash, so a changed record gets a new folder.
-- **Detection.** `/api/health` reports `strayFiles` for the load folder: temp files, staging leftovers and conflict-copy names such as `name (1).csv` or `name-DESKTOP-ABC.csv`. Anything above 0 needs investigation.
+**Landing folder (`EXTRACT_LANDING`): read only.**
 
-Browser drafts stay in the tab's session storage and are never written to disk.
+- Each extract is a subfolder holding the five CSV files. **Import extract → Landing folder** lists them; `npm run import:csv -- <subfolder>` also works.
+- The app never creates, renames, moves or deletes anything in the landing folder, so it causes no sync activity there.
+- An import stops with a plain reason if:
+  - an Excel lock file (`~$customers.csv`) is present — the file is still open;
+  - a conflict copy (`customers (1).csv`, `customers-DESKTOP-ABC.csv`) or temp file is present — resolve it in OneDrive first;
+  - a file changed in the last 30 seconds — OneDrive may still be syncing;
+  - an online-only file cannot be read — set the landing folder to **Always keep on this device**.
+- A partly synced file that passes those checks still fails the `control.csv` checksum, and nothing is imported.
+
+**CBS load folder (`CBS_OUTBOX`): complete folders only, never changed.**
+
+- Every delivery is written and flushed in `CBS_STAGING`, outside the synced tree, then moved into the load folder in one rename. OneDrive therefore only ever sees a finished folder appear. It never sees a temp file, a partial file or a staging folder.
+- `CBS_STAGING` must be on the same drive as the load folder, so the move is a single step and not a copy. Start-up checks this and refuses a staging folder on another drive or inside a synced folder.
+- Nothing in the load folder is overwritten. A repeat delivery of identical content is a no-op, and different content under an existing name is an error. Folder names include the output hash. So there is nothing for OneDrive to turn into a conflict copy.
+- Staging left by a crash is removed at start-up once it is an hour old. Delivery is idempotent, so the job is simply retried.
+
+**Monitoring.** `/api/health` reports `strayFiles` across the load and landing folders: temp files, staging leftovers and conflict-copy names. Anything above 0 needs investigation.
+
+**What is still not supported.** Placing the database in OneDrive, or having several machines run the app against one synced copy of it. Sharing records across sites needs the Graph or backend storage route (DEC-01). Browser drafts stay in the tab's session storage and are never written to disk.
 
 ## Containers
 

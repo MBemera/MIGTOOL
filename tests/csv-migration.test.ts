@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  cpSync,
   existsSync,
   mkdirSync,
+  statSync,
+  utimesSync,
   mkdtempSync,
   readFileSync,
   readdirSync,
@@ -17,10 +20,14 @@ import { CbsRejection, FileDropCbs, SimulatedCbs } from '../packages/adapters/cb
 import { csvPackageToExtract, parseCsv } from '../packages/adapters/csv-extract';
 import {
   assertNotSynced,
+  landingPackages,
+  prepareOutputFolder,
+  readExtractPackage,
   strayFiles,
   sweepStaging,
   writeFolderAtomic,
 } from '../packages/adapters/files';
+import { createApp } from '../packages/server/app';
 import { merge } from '../packages/core/mapping';
 import { MigrationService, worker } from '../packages/worker/service';
 import { pack, extract, readyRecord } from './helpers';
@@ -533,7 +540,7 @@ describe('temp files, duplicates and synced folders (section 10, NFR-09)', () =>
     mkdirSync(join(root, '.staging', 'crashed'), { recursive: true });
     writeFileSync(join(root, '.staging', 'crashed', 'a.csv'), 'partial');
     expect(strayFiles(root)).toHaveLength(1);
-    sweepStaging(root, 0);
+    sweepStaging(join(root, '.staging'), 0);
     expect(strayFiles(root)).toEqual([]);
     expect(writeFolderAtomic(root, 'batch-1', { 'a.csv': Buffer.from('x') }).created).toBe(true);
     expect(writeFolderAtomic(root, 'batch-1', { 'a.csv': Buffer.from('x') }).created).toBe(false);
@@ -574,3 +581,173 @@ class PipelineFailure extends PlatformError {
     super('CBS_DOWN_HARD', 'Permanent delivery failure', 500);
   }
 }
+
+describe('OneDrive landing and CBS load folders', () => {
+  // A folder shaped like a OneDrive for Business root; detection is by folder name.
+  let synced: string, local: string;
+  beforeEach(() => {
+    synced = join(dir, 'OneDrive - Bank 2');
+    local = join(dir, 'local');
+    mkdirSync(join(synced, 'Migration', 'Landing'), { recursive: true });
+    mkdirSync(local, { recursive: true });
+  });
+  const landingPackage = (name = 'bank1-2026-10-17') => {
+    const target = join(synced, 'Migration', 'Landing', name);
+    cpSync(fixtureDir, target, { recursive: true });
+    // Files settled by OneDrive some time ago.
+    const past = new Date(Date.now() - 3600000);
+    for (const f of readdirSync(target)) utimesSync(join(target, f), past, past);
+    return target;
+  };
+  const listing = (root: string) =>
+    readdirSync(root, { recursive: true, withFileTypes: true })
+      .map((e) => join(e.parentPath ?? (e as any).path, e.name))
+      .sort()
+      .map((p) => `${p}:${statSync(p).mtimeMs}:${statSync(p).size}`);
+
+  it('runs the migration with both folders in OneDrive and never exposes partial files', async () => {
+    const outbox = join(synced, 'Migration', 'CBS Load'),
+      syncedCbs = new FileDropCbs(outbox, pack, join(local, 'staging')),
+      svc = new MigrationService(store, pack, () => {}, syncedCbs),
+      source = landingPackage(),
+      before = listing(source);
+    const batch = await svc.ingestCsv(
+      readExtractPackage(source),
+      { name: 'bank1-2026-10-17' },
+      admin,
+    );
+    expect(batch.counts.created).toBe(10);
+    // The landing folder is only read: nothing added, changed or touched.
+    expect(listing(source)).toEqual(before);
+    for (const r of store.list()) supplyDeclarations(r.recordId);
+    svc.releaseBatch(batch.id, admin);
+    for (let i = 0; i < 50; i++) if (!(await svc.runOne())) break;
+    expect(store.list().every((r) => r.state === 'reconciled')).toBe(true);
+    // Only complete delivery folders ever appear in the synced tree: no staging, temp or copies.
+    expect(readdirSync(outbox)).toHaveLength(10);
+    expect(readdirSync(outbox).some((f) => f.startsWith('.'))).toBe(false);
+    expect(strayFiles(synced)).toEqual([]);
+    for (const folder of readdirSync(outbox))
+      expect(readdirSync(join(outbox, folder)).sort()).toEqual([
+        'Account_Register.csv',
+        'Customer_Create.csv',
+        'User_Create.csv',
+        'manifest.json',
+      ]);
+  });
+  it('a failed write leaves the synced folder untouched', () => {
+    const outbox = join(synced, 'CBS Load'),
+      { staging } = prepareOutputFolder(outbox, join(local, 'staging'));
+    expect(() =>
+      writeFolderAtomic(
+        outbox,
+        'r1',
+        { 'a.csv': Buffer.from('x'), 'bad/name': Buffer.from('y') },
+        staging,
+      ),
+    ).toThrow('Invalid output file');
+    expect(readdirSync(outbox)).toEqual([]);
+    expect(readdirSync(staging)).toEqual([]);
+  });
+  it('refuses staging inside the synced folder, a synced staging area and a synced database', () => {
+    expect(() => new FileDropCbs(join(synced, 'CBS Load'), pack)).toThrow(
+      'staging area must be outside',
+    );
+    expect(() => prepareOutputFolder(join(local, 'out'), join(synced, 'staging'))).toThrow(
+      'synced folder',
+    );
+    expect(() => new Store(join(synced, 'migtool.sqlite'), pack)).toThrow('synced folder');
+  });
+  it.runIf(existsSync('/dev/shm') && statSync('/dev/shm').dev !== statSync(tmpdir()).dev)(
+    'refuses staging on a different drive, where the move would be a copy',
+    () => {
+      const other = mkdtempSync('/dev/shm/migtool-staging-');
+      try {
+        expect(() => prepareOutputFolder(join(synced, 'CBS Load'), other)).toThrow(
+          'different drives',
+        );
+      } finally {
+        rmSync(other, { recursive: true, force: true });
+      }
+    },
+  );
+  it('stops on open, half-synced, conflicting or unreadable landing files with the reason', () => {
+    const source = landingPackage();
+    writeFileSync(join(source, 'desktop.ini'), '');
+    expect(Object.keys(readExtractPackage(source)).sort()).toEqual([
+      'accounts.csv',
+      'control.csv',
+      'customers.csv',
+      'people.csv',
+      'signatories.csv',
+    ]);
+    writeFileSync(join(source, '~$customers.csv'), '');
+    expect(() => readExtractPackage(source)).toThrow('customers.csv is open in Excel');
+    rmSync(join(source, '~$customers.csv'));
+    writeFileSync(join(source, 'customers (1).csv'), '');
+    expect(() => readExtractPackage(source)).toThrow('sync conflict copy');
+    rmSync(join(source, 'customers (1).csv'));
+    utimesSync(join(source, 'accounts.csv'), new Date(), new Date());
+    expect(() => readExtractPackage(source)).toThrow('Wait for OneDrive to finish syncing');
+    expect(Object.keys(readExtractPackage(source, 0))).toContain('accounts.csv');
+    utimesSync(join(source, 'accounts.csv'), new Date(0), new Date(0));
+    writeFileSync(join(source, 'people.csv'), Buffer.from([0xff, 0xfe, 0x41]));
+    utimesSync(join(source, 'people.csv'), new Date(0), new Date(0));
+    expect(() => readExtractPackage(source)).toThrow('not valid UTF-8');
+  });
+  it('a half-synced data file is caught by the control checksums', async () => {
+    const source = landingPackage();
+    const text = readFileSync(join(source, 'accounts.csv'), 'utf8');
+    writeFileSync(join(source, 'accounts.csv'), text.slice(0, text.length / 2));
+    utimesSync(join(source, 'accounts.csv'), new Date(0), new Date(0));
+    await expect(service.ingestCsv(readExtractPackage(source), {}, admin)).rejects.toThrow(
+      'checksum',
+    );
+    expect(store.list()).toHaveLength(0);
+  });
+  it('lists and imports landing packages over the API', async () => {
+    landingPackage('bank1-2026-10-17');
+    const landing = join(synced, 'Migration', 'Landing');
+    expect(landingPackages(landing, 'control.csv').map((p) => p.name)).toEqual([
+      'bank1-2026-10-17',
+    ]);
+    const runtime = createApp({
+      databasePath: join(local, 'api.sqlite'),
+      demo: true,
+      startWorker: false,
+      cbsOutbox: join(synced, 'Migration', 'CBS Load'),
+      landing,
+    });
+    const server = runtime.app.listen(0, '127.0.0.1');
+    await new Promise<void>((resolve) => server.once('listening', resolve));
+    const base = `http://127.0.0.1:${(server.address() as any).port}/api`;
+    try {
+      const login = await fetch(`${base}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin', password: 'demo-admin-2026' }),
+      });
+      const cookie = login.headers.get('set-cookie')!.split(';')[0];
+      const list = await (await fetch(`${base}/landing`, { headers: { cookie } })).json();
+      expect(list).toMatchObject({ configured: true, packages: [{ name: 'bank1-2026-10-17' }] });
+      const imported = await fetch(`${base}/ingest/landing`, {
+        method: 'POST',
+        headers: { cookie, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ package: 'bank1-2026-10-17' }),
+      });
+      expect((await imported.json()).counts).toMatchObject({ created: 10, rejected: 0 });
+      const traversal = await fetch(`${base}/ingest/landing`, {
+        method: 'POST',
+        headers: { cookie, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ package: '../secrets' }),
+      });
+      expect(traversal.status).toBe(400);
+      const health = await (await fetch(`${base}/health`)).json();
+      expect(health).toMatchObject({ delivery: 'file-drop', strayFiles: 0 });
+    } finally {
+      server.closeAllConnections();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+      runtime.close();
+    }
+  });
+});

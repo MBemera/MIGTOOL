@@ -44,7 +44,7 @@ Every example customer requires human-supplied declaration evidence. Import neve
 - JSONata, JSONLogic and registered-function conditions; weighted scoring and deterministic gates.
 - Bank 1 CSV extract packages (customers, accounts, people, signatories and a control file of row counts and SHA-256 checksums) converted into records; file faults stop the batch.
 - Bank 2 CBS load files written atomically to a load folder, parsed back for reconciliation, and combined per batch with control totals.
-- No temp files, partial files or conflict copies: atomic folder writes, staging sweep on start, no overwrites, and refusal to run inside a sync client folder.
+- OneDrive-compatible extract landing and CBS load folders: extracts are only read and checked for open, half-synced or conflicting files; load files are staged locally and moved in complete, never overwritten, so OneDrive never sees temp files or makes conflict copies. The database stays on local disk.
 - Idempotent JSON extract ingestion, checksums, duplicate rejection, control totals, provenance and refresh merges.
 - Authoritative SQLite backend with atomic leases, server-time expiry, ETags and stale-write rejection.
 - Persisted import work and delivery jobs, retry backoff, idempotency keys, circuit breaking and readback checks.

@@ -658,6 +658,20 @@ code {
   margin: 20px 0;
   font-size: 12px;
 }
+.landing-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: 780px;
+}
+.landing-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #c0c0c0;
+}
 .import-review {
   background: #eee;
   padding: 22px;

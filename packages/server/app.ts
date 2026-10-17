@@ -15,7 +15,7 @@ import { assertEditableData, leafValues } from '../core/mapping';
 import { migrate } from '../../migrations';
 import { MigrationService, worker } from '../worker/service';
 import { deliveryFor } from '../adapters/cbs';
-import { strayFiles } from '../adapters/files';
+import { landingPackages, readExtractPackage, strayFiles } from '../adapters/files';
 
 declare global {
   namespace Express {
@@ -48,6 +48,7 @@ export function createApp(
     demo?: boolean;
     startWorker?: boolean;
     cbsOutbox?: string;
+    landing?: string;
   } = {},
 ) {
   const databasePath = options.databasePath ?? process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
@@ -55,6 +56,9 @@ export function createApp(
     store = new Store(databasePath, pack),
     app = express();
   const { root: outbox, cbs } = deliveryFor(store, databasePath, options.cbsOutbox);
+  // Bank 1 extract packages arrive here, one subfolder each; it may be a OneDrive folder and is
+  // only ever read.
+  const landing = options.landing ?? process.env.EXTRACT_LANDING;
   const clients = new Set<Response>();
   const changed = () => {
     for (const response of clients) response.write('event: changed\ndata: {}\n\n');
@@ -96,7 +100,8 @@ export function createApp(
       status: 'ok',
       mode: options.demo ? 'synthetic-demo' : 'local',
       delivery: outbox ? 'file-drop' : 'simulated',
-      strayFiles: outbox ? strayFiles(outbox).length : 0,
+      strayFiles:
+        (outbox ? strayFiles(outbox).length : 0) + (landing ? strayFiles(landing).length : 0),
       llm: 'disabled',
       schemaVersion: pack.schema.version,
     });
@@ -245,6 +250,33 @@ export function createApp(
       await service.ingestCsv(
         input.files,
         { name: input.name, fullSnapshot: input.fullSnapshot },
+        actor(req),
+      ),
+    );
+  });
+  app.get('/api/landing', roles('admin'), (_req, res) =>
+    res.json({
+      configured: Boolean(landing),
+      packages: landing ? landingPackages(landing, pack.ingest.csv!.control) : [],
+    }),
+  );
+  app.post('/api/ingest/landing', roles('admin'), async (req, res) => {
+    if (!landing)
+      throw new PlatformError(
+        'LANDING_NOT_CONFIGURED',
+        'Set EXTRACT_LANDING to use a landing folder',
+      );
+    const input = z
+      .object({
+        package: z.string().regex(/^\w[\w .-]{0,119}$/),
+        fullSnapshot: z.boolean().optional(),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(
+      await service.ingestCsv(
+        readExtractPackage(join(landing, input.package)),
+        { name: input.package, fullSnapshot: input.fullSnapshot },
         actor(req),
       ),
     );

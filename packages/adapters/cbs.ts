@@ -1,11 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { type Data, type Pack, PlatformError } from '../core/model';
 import { csv } from '../core/mapping';
 import { Store } from './store';
 import { hash, stable } from './config';
 import { parseCsv } from './csv-extract';
-import { assertNotSynced, sweepStaging, writeFolderAtomic } from './files';
+import { prepareOutputFolder, writeFolderAtomic } from './files';
 
 export interface CbsAdapter {
   deliver(key: string, recordId: string, expected: Data, at: string): Promise<void>;
@@ -52,13 +52,14 @@ export class SimulatedCbs implements CbsAdapter {
 // a load folder, one complete folder per delivery, written atomically. Readback parses the CSV
 // files actually written, so the comparison covers the real serialised load.
 export class FileDropCbs implements CbsAdapter {
+  public staging: string;
+  // The load folder may be a OneDrive/SharePoint folder; staging then sits outside it.
   constructor(
     public root: string,
     private pack: Pack,
+    staging?: string,
   ) {
-    assertNotSynced(root, 'The CBS load folder');
-    mkdirSync(root, { recursive: true });
-    sweepStaging(root);
+    this.staging = prepareOutputFolder(root, staging).staging;
   }
   folder(key: string) {
     return key.replace(/[^\w.-]/g, '_');
@@ -103,7 +104,7 @@ export class FileDropCbs implements CbsAdapter {
     files['manifest.json'] = Buffer.from(
       JSON.stringify({ key, recordId, files: manifest }, null, 2) + '\n',
     );
-    writeFolderAtomic(this.root, this.folder(key), files);
+    writeFolderAtomic(this.root, this.folder(key), files, this.staging);
   }
   async readback(key: string) {
     const dir = join(this.root, this.folder(key));
@@ -145,10 +146,25 @@ export function batchLoadFiles(pack: Pack, deliveries: { recordId: string; expec
   );
   return { files, manifest };
 }
+// Local staging for files bound for a (possibly synced) folder: CBS_STAGING, else beside the
+// database, which must be on local disk.
+export function stagingFor(databasePath: string, outbox?: string) {
+  return (
+    process.env.CBS_STAGING ??
+    (databasePath === ':memory:'
+      ? join(outbox ?? '.', '.staging')
+      : join(dirname(databasePath), 'staging'))
+  );
+}
 // One choice of delivery for the server, the standalone worker and the scripts: the CBS load
 // folder beside the database unless CBS_OUTBOX names another; in-memory stores simulate.
 export function deliveryFor(store: Store, databasePath: string, outbox = process.env.CBS_OUTBOX) {
   const root =
     outbox ?? (databasePath === ':memory:' ? undefined : join(dirname(databasePath), 'cbs-outbox'));
-  return { root, cbs: root ? new FileDropCbs(root, store.pack) : new SimulatedCbs(store) };
+  return {
+    root,
+    cbs: root
+      ? new FileDropCbs(root, store.pack, stagingFor(databasePath, root))
+      : new SimulatedCbs(store),
+  };
 }
