@@ -127,6 +127,14 @@ const schemas: Record<string, z.ZodType> = {
   'mappings/ingest/bank1.yaml': z.object({
     key: z.string(),
     required_columns: z.array(z.string()),
+    csv: z
+      .object({
+        customers: z.string().regex(/^[\w.-]+\.csv$/),
+        control: z.string().regex(/^[\w.-]+\.csv$/),
+        groups: z.record(z.string(), z.string().regex(/^[\w.-]+\.csv$/)),
+      })
+      .strict()
+      .optional(),
     fields: z.array(binding),
     groups: z.array(z.object({ from: z.string(), to: z.string(), fields: z.array(binding) })),
   }),
@@ -270,10 +278,16 @@ export function loadPack(root = 'config'): Pack {
       if (!col.name) throw new Error(`${mapping.output}: missing column name`);
     }
   }
+  // A protected path not yet in the schema stays listed so it is enforced when the field is added,
+  // but it must not pass silently.
   pack.protected.protected.forEach((p) => {
-    if (!paths.has(p) && !['entity.tfn', 'accounts[*].limits'].includes(p))
-      check(p, 'protected-fields.yaml');
+    if (![...paths].some((path) => path === p || path.startsWith(`${p}.`)))
+      warnings.push(`protected-fields.yaml: ${p} matches no schema field yet`);
   });
+  if (pack.ingest.csv)
+    for (const group of Object.keys(pack.ingest.csv.groups))
+      if (!pack.ingest.groups.some((g) => g.from === group))
+        throw new Error(`bank1.yaml: csv group ${group} has no group mapping`);
   for (const entry of pack.playbook.entries) {
     check(entry.path, 'playbook.yaml');
     checkTransform(entry.transform, 'playbook.yaml');

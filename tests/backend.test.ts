@@ -213,10 +213,19 @@ describe('ingest and durable workflow', () => {
   });
   it('TC-073 playbook repairs formatting without inventing declarations', async () => {
     const row = { ...extract.rows[0], POSTCODE: '800' };
+    // Tier 1 runs automatically after ingest commits the record.
     await service.ingest({ rows: [row], totals: { customerCount: 1, accountCount: 1 } }, human);
-    service.applyPlaybook('SYN-0001', 'postcode-valid', human);
     const record = store.load('SYN-0001').record;
     expect(record.data.address.postcode).toBe('0800');
+    expect(record.provenance['address.postcode'].source).toBe('playbook');
+    expect(
+      store
+        .traces({ recordId: 'SYN-0001' })
+        .some((t) => t.decision === 'playbook_used' && t.detail?.entry === 'pb-demo-postcode'),
+    ).toBe(true);
+    expect(() => service.applyPlaybook('SYN-0001', 'postcode-valid', human)).toThrow(
+      'changes nothing',
+    );
     expect(record.data.tax.declaration).toBeUndefined();
     expect(record.state).toBe('needs_input');
   });

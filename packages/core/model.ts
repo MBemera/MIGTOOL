@@ -42,6 +42,7 @@ export interface Envelope {
   pendingBaseline?: Data;
   pendingProvenance?: Record<string, Provenance>;
   missingFromRefresh?: boolean;
+  amendmentFrom?: State;
 }
 export type Conflict = { path: string; baseline: unknown; current: unknown; incoming: unknown };
 export type Condition =
@@ -131,6 +132,7 @@ export interface Pack {
   ingest: {
     key: string;
     required_columns: string[];
+    csv?: { customers: string; control: string; groups: Record<string, string> };
     fields: Binding[];
     groups: { from: string; to: string; fields: Binding[] }[];
   };
@@ -205,6 +207,7 @@ export interface Batch {
   };
   inputHash: string;
   reason?: string;
+  runStartedAt?: string;
 }
 export type Proposal = {
   errorClass: 'data';

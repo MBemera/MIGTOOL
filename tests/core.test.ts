@@ -17,7 +17,11 @@ import { pack, extract, readyRecord } from './helpers';
 describe('configuration and shared rules', () => {
   it('TC-001 loads and fingerprints every domain file', () => {
     expect(Object.keys(pack.version)).toHaveLength(18);
-    expect(pack.warnings).toEqual([]);
+    // Spec-listed protected fields not yet in the synthetic schema are reported, not hidden.
+    expect(pack.warnings).toEqual([
+      'protected-fields.yaml: entity.tfn matches no schema field yet',
+      'protected-fields.yaml: accounts[*].limits matches no schema field yet',
+    ]);
     expect(pack.schema.pages).toHaveLength(21);
   });
   it.each(['syntax', 'field', 'condition', 'function', 'gate-cycle'])(

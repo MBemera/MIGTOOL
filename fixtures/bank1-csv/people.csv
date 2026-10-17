@@ -1,0 +1,16 @@
+CUST_ID,NAME,DATE_OF_BIRTH,EMAIL,ROLE
+B1-100001,Daniel Harbour,04/09/1971,daniel@harbourview.example,director
+B1-100001,Priya Harbour,22/01/1975,priya@harbourview.example,director
+B1-100002,Anna Kowalski,15/05/1958,anna@kowalski.example,owner
+B1-100002,Tomasz Kowalski,30/11/1986,tomasz@kowalski.example,beneficiary
+B1-100003,Mia Chen,08/02/1994,mia@chendesign.example,owner
+B1-100004,Siobhan O'Brien,19/07/1969,siobhan@obrienkelly.example,director
+B1-100004,Marcus Kelly,03/03/1980,marcus@obrienkelly.example,director
+B1-100005,Wayne Tipungwuti,12/12/1977,wayne@topendfish.example,director
+B1-100006,Zoë Müller,27/06/1990,zoe@mullerphysio.example,owner
+B1-100007,Ravi Patel,14/10/1965,ravi@patelsingh.example,owner
+B1-100007,Harpreet Singh,01/08/1972,harpreet@patelsingh.example,owner
+B1-100008,Liam Walsh,25/04/1983,liam@capitalbuilders.example,director
+B1-100009,Thu Nguyen,09/09/1979,thu@nguyenbakery.example,director
+B1-100009,Bao Nguyen,17/03/2004,,contact
+B1-100010,Ruth Okafor,20/02/1999,ruth@okaforconsulting.example,owner

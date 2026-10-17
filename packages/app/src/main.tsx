@@ -139,6 +139,13 @@ function App() {
     [assignee, setAssignee] = useState('all'),
     [traceSearch, setTraceSearch] = useState('');
   const [importData, setImportData] = useState<any>(null),
+    [landing, setLanding] = useState<{
+      configured: boolean;
+      packages: { name: string; modifiedAt: string }[];
+    } | null>(null),
+    [csvImport, setCsvImport] = useState<{ files: Record<string, string>; name: string } | null>(
+      null,
+    ),
     [importError, setImportError] = useState(''),
     [reason, setReason] = useState(''),
     [loginError, setLoginError] = useState('');
@@ -161,6 +168,7 @@ function App() {
   const refresh = useCallback(async () => {
     const data = await api('/overview');
     setOverview(data);
+    if (data.notices?.length) setStatus(data.notices.map((n: any) => n.message).join(' '));
   }, []);
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -199,6 +207,7 @@ function App() {
         .then(setTrace)
         .catch(fail);
     if (view === 'admin' && user?.role === 'admin') api('/users').then(setUsers).catch(fail);
+    if (view === 'import' && user?.role === 'admin') api('/landing').then(setLanding).catch(fail);
   }, [view, user?.id, traceSearch]);
   useEffect(() => {
     const activity = () => {
@@ -353,7 +362,16 @@ function App() {
     dirty.current = false;
     setSelected({ ...selected, ...result, evaluation: evaluate(pack!, result.record.data) });
     setSavedDraft(null);
-    tell(`Saved ${selected.record.recordId}. ${label(result.record.state)}. Lease released.`);
+    tell(
+      `Saved ${selected.record.recordId}. ${label(result.record.state)}. Lease released.` +
+        (result.sharepoint === 'published'
+          ? ' Published to SharePoint.'
+          : result.sharepoint === 'pending'
+            ? ' SharePoint publish pending; the record stays checked out until it completes.'
+            : result.sharepoint === 'conflict'
+              ? ' SharePoint changed meanwhile: its copy was kept and yours sent for review.'
+              : ''),
+    );
     await refresh();
   }
   const local = pack && selected ? evaluate(pack, draft) : null;
@@ -470,7 +488,9 @@ function App() {
   async function batchAction(batch: any, action: string) {
     if (action === 'release') {
       const result = await api(`/batches/${batch.id}/release`, 'POST', {});
-      tell(`${result.queued} records queued for simulated CBS delivery.`);
+      tell(
+        `${result.queued} records queued for CBS delivery (${overview.delivery === 'file-drop' ? 'load folder' : 'simulated'}).`,
+      );
     } else {
       if (!reason.trim()) {
         tell('Enter a reason before pausing or resuming a batch.');
@@ -635,7 +655,10 @@ function App() {
                   <span className="square" />{' '}
                   {connected ? 'Backend connected' : 'Connection interrupted'}
                 </p>
-                <p>CBS: simulation</p>
+                <p>
+                  CBS:{' '}
+                  {overview?.delivery === 'file-drop' ? 'load folder (no live link)' : 'simulation'}
+                </p>
                 <p>AI steering: disabled</p>
               </div>
               <span className="version">MIGTOOL / VERSION 0.1.0</span>
@@ -805,8 +828,8 @@ function App() {
                   <div className="notice">
                     <strong>Post-load amendment pending</strong>
                     <p>
-                      The loaded record is frozen. The proposed changes need reviewer approval and
-                      simulated readback.
+                      The loaded record is frozen. The proposed changes need reviewer approval, CBS
+                      delivery and readback.
                     </p>
                     <a href={`/api/records/${selected.record.recordId}/amendment.pdf`} download>
                       Download amendment review PDF
@@ -1351,8 +1374,8 @@ function App() {
                         <div>
                           <strong>03 / RELEASE</strong>
                           <p>
-                            AAF and CBS gates control exports. The CBS adapter is a local
-                            simulation.
+                            AAF and CBS gates control exports. CBS load files are written to a local
+                            load folder; there is no live bank connection.
                           </p>
                         </div>
                         <div>
@@ -1371,7 +1394,157 @@ function App() {
                         <span>JSON / SYNTHETIC DOMAIN PACK</span>
                       </div>
                       <div className="import-body">
-                        <div className="step-label">1. SELECT SOURCE FILE</div>
+                        {landing?.configured && (
+                          <>
+                            <div className="step-label">LANDING FOLDER (ONEDRIVE)</div>
+                            <p>
+                              Extract packages waiting in the landing folder. Files are only read;
+                              an open, half-synced or conflicting file stops the import with the
+                              reason.
+                            </p>
+                            {landing.packages.length ? (
+                              <ul className="landing-list">
+                                {landing.packages.map((p) => (
+                                  <li key={p.name}>
+                                    <span>
+                                      <strong>{p.name}</strong>{' '}
+                                      <small>control file {date(p.modifiedAt)}</small>
+                                    </span>
+                                    <button
+                                      disabled={busy || !isAdmin}
+                                      onClick={() =>
+                                        run(async () => {
+                                          tell(`Importing ${p.name} from the landing folder...`);
+                                          const result = await api('/ingest/landing', 'POST', {
+                                            package: p.name,
+                                          });
+                                          await refresh();
+                                          setView('batches');
+                                          tell(
+                                            `Import ${label(result.state).toLowerCase()}: ${result.counts.created} created, ${result.counts.updated} updated, ${result.counts.skipped} unchanged, ${result.counts.rejected} rejected.`,
+                                          );
+                                        })
+                                      }
+                                    >
+                                      Import {p.name}
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p>No extract packages are waiting.</p>
+                            )}
+                          </>
+                        )}
+                        <div className="step-label">1A. BANK 1 CSV EXTRACT PACKAGE</div>
+                        <p>
+                          Select every file of the package together: <code>customers.csv</code>,{' '}
+                          <code>accounts.csv</code>, <code>people.csv</code>,{' '}
+                          <code>signatories.csv</code> and <code>control.csv</code> (row counts and
+                          SHA-256 per file). A file fault stops the whole batch.
+                        </p>
+                        <input
+                          aria-label="CSV extract files"
+                          type="file"
+                          multiple
+                          accept=".csv,text/csv"
+                          disabled={!isAdmin || busy}
+                          onChange={(event) =>
+                            run(async () => {
+                              setImportData(null);
+                              setCsvImport(null);
+                              setImportError('');
+                              const list = [...(event.target.files ?? [])];
+                              if (!list.length) return;
+                              try {
+                                // Keep a byte order mark so file checksums match control.csv.
+                                const decoder = new TextDecoder('utf-8', {
+                                  fatal: true,
+                                  ignoreBOM: true,
+                                });
+                                const files = Object.fromEntries(
+                                  await Promise.all(
+                                    list.map(async (f) => [
+                                      f.name,
+                                      decoder.decode(await f.arrayBuffer()),
+                                    ]),
+                                  ),
+                                );
+                                setCsvImport({ files, name: 'Bank 1 CSV extract' });
+                                tell(`${list.length} CSV files selected. Review before import.`);
+                              } catch (e) {
+                                setImportError(
+                                  e instanceof TypeError
+                                    ? 'Files must be UTF-8 encoded'
+                                    : (e as Error).message,
+                                );
+                              }
+                            })
+                          }
+                        />
+                        <div className="sample-actions">
+                          <button
+                            disabled={!isAdmin || busy}
+                            onClick={() =>
+                              run(async () => {
+                                setImportData(null);
+                                setCsvImport({
+                                  files: await api('/fixtures/csv'),
+                                  name: 'Example Bank 1 CSV extract (10 customers)',
+                                });
+                                tell('Example 10-customer CSV extract selected. Review below.');
+                              })
+                            }
+                          >
+                            Use example CSV extract
+                          </button>
+                        </div>
+                        {csvImport && (
+                          <div className="import-review inset">
+                            <div className="step-label">REVIEW CSV PACKAGE</div>
+                            <dl>
+                              <div>
+                                <dt>Extract</dt>
+                                <dd>{csvImport.name}</dd>
+                              </div>
+                              {Object.entries(csvImport.files)
+                                .sort(([a], [b]) => a.localeCompare(b))
+                                .map(([name, text]) => (
+                                  <div key={name}>
+                                    <dt>{name}</dt>
+                                    <dd>
+                                      {Math.max(text.trim().split(/\r?\n/).length - 1, 0)} rows
+                                    </dd>
+                                  </div>
+                                ))}
+                            </dl>
+                            <p>
+                              Control totals and checksums are verified on the server. Customer
+                              declarations are never imported.
+                            </p>
+                            <button
+                              className="primary"
+                              disabled={busy || !isAdmin}
+                              onClick={() =>
+                                run(async () => {
+                                  tell(
+                                    'Import in progress. Verifying files and converting rows...',
+                                  );
+                                  const result = await api('/ingest/csv', 'POST', csvImport);
+                                  await refresh();
+                                  setCsvImport(null);
+                                  setView('batches');
+                                  tell(
+                                    `Import ${label(result.state).toLowerCase()}: ${result.counts.created} created, ${result.counts.updated} updated, ${result.counts.skipped} unchanged, ${result.counts.rejected} rejected.`,
+                                  );
+                                })
+                              }
+                            >
+                              {busy ? 'Processing extract...' : 'Import CSV and validate'}
+                            </button>
+                          </div>
+                        )}
+                        <div className="step-label">1B. JSON EXTRACT</div>
                         <p>
                           Use a UTF-8 JSON file containing <code>rows</code> and{' '}
                           <code>totals.customerCount / accountCount</code>. Repeating account,
@@ -1385,6 +1558,7 @@ function App() {
                           onChange={(event) =>
                             run(async () => {
                               setImportData(null);
+                              setCsvImport(null);
                               setImportError('');
                               const file = event.target.files?.[0];
                               if (!file) return;
@@ -1500,7 +1674,10 @@ function App() {
                   <section className="panel raised">
                     <div className="panel-heading">
                       <h2>Batch register</h2>
-                      <span>CBS DELIVERY: SIMULATED</span>
+                      <span>
+                        CBS DELIVERY:{' '}
+                        {overview.delivery === 'file-drop' ? 'LOAD FOLDER' : 'SIMULATED'}
+                      </span>
                     </div>
                     <div className="filters">
                       <label className="search-field">
@@ -1567,6 +1744,15 @@ function App() {
                                 >
                                   {b.state === 'on_hold' ? 'Resume' : 'Pause'}
                                 </button>
+                                {isReviewer && (
+                                  <a
+                                    className="button"
+                                    href={`/api/batches/${encodeURIComponent(b.id)}/cbs-export`}
+                                    download
+                                  >
+                                    CBS load files
+                                  </a>
+                                )}
                               </td>
                             </tr>
                           ))}

@@ -118,4 +118,22 @@ describe('authenticated service boundaries', () => {
         .toString(),
     ).toBe('%PDF');
   });
+  it('imports the CSV package over HTTP and serves combined CBS load files', async () => {
+    const files = await (await request('/fixtures/csv', admin)).json();
+    expect(Object.keys(files).sort()).toEqual([
+      'accounts.csv',
+      'control.csv',
+      'customers.csv',
+      'people.csv',
+      'signatories.csv',
+    ]);
+    expect((await request('/ingest/csv', operator, 'POST', { files })).status).toBe(403);
+    const response = await request('/ingest/csv', admin, 'POST', { files, name: 'CSV' });
+    expect(response.status).toBe(200);
+    const batch = await response.json();
+    expect(batch.counts).toMatchObject({ created: 10, rejected: 0 });
+    // Nothing is loaded yet, so there are no CBS files to hand over.
+    expect((await request(`/batches/${batch.id}/cbs-export`, reviewer)).status).toBe(404);
+    expect((await request(`/batches/${batch.id}/cbs-export`, operator)).status).toBe(403);
+  });
 });

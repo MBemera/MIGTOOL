@@ -10,6 +10,17 @@
       "transform": "padPostcode",
       "autoApply": true,
       "approvedBy": "synthetic-fixture-reviewer"
+    },
+    {
+      "id": "pb-0007",
+      "match": {
+        "step": "load",
+        "errorCode": "CBS-E1042"
+      },
+      "path": "address.postcode",
+      "transform": "padPostcode",
+      "autoApply": true,
+      "approvedBy": "synthetic-fixture-reviewer"
     }
   ]
 }

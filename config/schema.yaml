@@ -172,6 +172,11 @@
               "required": true
             },
             {
+              "path": "dateOfBirth",
+              "label": "Date of birth",
+              "type": "date"
+            },
+            {
               "path": "email",
               "label": "Email",
               "type": "text"

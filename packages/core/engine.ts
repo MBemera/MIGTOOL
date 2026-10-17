@@ -271,10 +271,11 @@ const transitions: Record<State, State[]> = {
   blocked: ['validating', 'on_hold'],
   aaf_ready: ['cbs_ready', 'validating'],
   cbs_ready: ['exported', 'validating'],
-  exported: ['loaded', 'blocked'],
+  exported: ['loaded', 'blocked', 'amendment_pending'],
   loaded: ['reconciled', 'blocked', 'amendment_pending'],
   reconciled: ['amendment_pending'],
-  amendment_pending: ['reconciled'],
+  // A rejected amendment returns to the state it was raised from; delivery failures block.
+  amendment_pending: ['reconciled', 'loaded', 'exported', 'blocked'],
   on_hold: ['validating'],
   withdrawn: [],
 };

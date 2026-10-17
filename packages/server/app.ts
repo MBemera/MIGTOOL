@@ -1,18 +1,22 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import JSZip from 'jszip';
 import { z } from 'zod';
 import { stringify } from 'yaml';
 import { type Actor, type Data, type Role, type State, PlatformError, same } from '../core/model';
 import { evaluate } from '../core/engine';
 import { Store } from '../adapters/store';
 import { loadPack } from '../adapters/config';
-import { renderBundle, reportPdf } from '../adapters/renderers';
+import { reportPdf } from '../adapters/renderers';
 import { assertEditableData, leafValues } from '../core/mapping';
 import { migrate } from '../../migrations';
 import { MigrationService, worker } from '../worker/service';
+import { deliveryFor } from '../adapters/cbs';
+import { type SharePointAuthority, sharePointFromEnv } from '../adapters/sharepoint';
+import { landingPackages, readExtractPackage, strayFiles } from '../adapters/files';
 
 declare global {
   namespace Express {
@@ -40,19 +44,69 @@ const roles =
     next();
   };
 export function createApp(
-  options: { databasePath?: string; demo?: boolean; startWorker?: boolean } = {},
+  options: {
+    databasePath?: string;
+    demo?: boolean;
+    startWorker?: boolean;
+    cbsOutbox?: string;
+    landing?: string;
+    authority?: SharePointAuthority;
+  } = {},
 ) {
-  const pack = loadPack(),
-    store = new Store(
-      options.databasePath ?? process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
-      pack,
-    ),
+  const databasePath = options.databasePath ?? process.env.DATABASE_PATH ?? 'var/migtool.sqlite',
+    pack = loadPack(),
+    store = new Store(databasePath, pack),
     app = express();
+  const { root: outbox, cbs } = deliveryFor(store, databasePath, options.cbsOutbox);
+  // Bank 1 extract packages arrive here, one subfolder each; it may be a OneDrive folder and is
+  // only ever read.
+  const landing = options.landing ?? process.env.EXTRACT_LANDING;
   const clients = new Set<Response>();
   const changed = () => {
     for (const response of clients) response.write('event: changed\ndata: {}\n\n');
   };
-  const service = new MigrationService(store, pack, changed);
+  // SharePoint is the record authority when configured; the database is then a working copy.
+  const authority = options.authority ?? sharePointFromEnv(pack);
+  const service = new MigrationService(store, pack, changed, cbs, authority);
+  const holder = (req: Request) => ({
+    id: req.user!.id,
+    name: req.user!.username,
+    kind: 'human' as const,
+  });
+  // Before a person's save: their SharePoint check-out must still be theirs.
+  const assertRemote = async (recordId: string) => {
+    const token = store.remote(recordId)?.token;
+    if (!authority) return;
+    if (!token)
+      throw new PlatformError('SHAREPOINT_LEASE_LOST', 'Reopen the record to check it out', 409);
+    await authority.assertHeld(recordId, token);
+  };
+  const migrateIfNeeded = (recordId: string) => {
+    const original = store.load(recordId);
+    const upgrade = migrate(original.record, pack);
+    if (!upgrade.versions.length) return;
+    const lease = store.acquire(recordId, worker, true);
+    if (!('leaseToken' in lease))
+      throw new PlatformError(
+        'LEASE_HELD',
+        'Schema upgrade is waiting for the current editor',
+        409,
+      );
+    try {
+      const states = service.validated(upgrade.record);
+      store.save(
+        upgrade.record,
+        { ifMatch: original.etag, leaseToken: lease.leaseToken },
+        worker,
+        'migrate',
+        'schema_upgraded',
+        states,
+      );
+      service.updateExceptions(upgrade.record);
+    } finally {
+      store.release(recordId, lease.leaseToken, worker);
+    }
+  };
   if (!store.users().length) {
     if (options.demo) {
       for (const role of ['admin', 'operator', 'reviewer'] as const)
@@ -88,7 +142,10 @@ export function createApp(
     res.json({
       status: 'ok',
       mode: options.demo ? 'synthetic-demo' : 'local',
-      delivery: 'simulated',
+      delivery: outbox ? 'file-drop' : 'simulated',
+      records: authority ? 'sharepoint' : 'local',
+      strayFiles:
+        (outbox ? strayFiles(outbox).length : 0) + (landing ? strayFiles(landing).length : 0),
       llm: 'disabled',
       schemaVersion: pack.schema.version,
     });
@@ -171,7 +228,7 @@ export function createApp(
       clients.delete(res);
     });
   });
-  app.get('/api/overview', (_req, res) =>
+  app.get('/api/overview', (_req: Request, res) =>
     res.json({
       dashboard: service.dashboard(),
       records: store.list().map((r) => ({
@@ -188,8 +245,21 @@ export function createApp(
       batches: store.batches(),
       exceptions: store.exceptions().filter((e) => e.status === 'open'),
       leases: store.leases(),
+      notices: store.takeNotices(_req.user!.id),
+      delivery: outbox ? 'file-drop' : 'simulated',
     }),
   );
+  app.get('/api/fixtures/csv', (_req, res) => {
+    const dir = 'fixtures/bank1-csv';
+    res.json(
+      Object.fromEntries(
+        readdirSync(dir)
+          .filter((f) => f.endsWith('.csv'))
+          .sort()
+          .map((f) => [f, readFileSync(join(dir, f), 'utf8')]),
+      ),
+    );
+  });
   app.get('/api/fixtures/:kind', (req, res) => {
     const file =
       req.params.kind === 'refresh' ? 'fixtures/bank1-refresh.json' : 'fixtures/bank1-extract.json';
@@ -211,89 +281,130 @@ export function createApp(
       .parse(req.body);
     res.json(await service.ingest(input, actor(req)));
   });
+  app.post('/api/ingest/csv', roles('admin'), async (req, res) => {
+    const input = z
+      .object({
+        name: z.string().max(120).optional(),
+        files: z.record(z.string().max(80), z.string()),
+        fullSnapshot: z.boolean().optional(),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(
+      await service.ingestCsv(
+        input.files,
+        { name: input.name, fullSnapshot: input.fullSnapshot },
+        actor(req),
+      ),
+    );
+  });
+  app.get('/api/landing', roles('admin'), (_req, res) =>
+    res.json({
+      configured: Boolean(landing),
+      packages: landing ? landingPackages(landing, pack.ingest.csv!.control) : [],
+    }),
+  );
+  app.post('/api/ingest/landing', roles('admin'), async (req, res) => {
+    if (!landing)
+      throw new PlatformError(
+        'LANDING_NOT_CONFIGURED',
+        'Set EXTRACT_LANDING to use a landing folder',
+      );
+    const input = z
+      .object({
+        package: z.string().regex(/^\w[\w .-]{0,119}$/),
+        fullSnapshot: z.boolean().optional(),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(
+      await service.ingestCsv(
+        readExtractPackage(join(landing, input.package)),
+        { name: input.package, fullSnapshot: input.fullSnapshot },
+        actor(req),
+      ),
+    );
+  });
   app.get('/api/records/:id', (req, res) => {
-    const original = store.load(id(req));
-    const upgrade = migrate(original.record, pack);
-    if (upgrade.versions.length) {
-      const lease = store.acquire(id(req), worker, true);
-      if (!('leaseToken' in lease))
-        throw new PlatformError(
-          'LEASE_HELD',
-          'Schema upgrade is waiting for the current editor',
-          409,
-        );
-      try {
-        const states = service.validated(upgrade.record);
-        store.save(
-          upgrade.record,
-          { ifMatch: original.etag, leaseToken: lease.leaseToken },
-          worker,
-          'migrate',
-          'schema_upgraded',
-          states,
-        );
-        service.updateExceptions(upgrade.record);
-      } finally {
-        store.release(id(req), lease.leaseToken, worker);
-      }
-    }
+    // With SharePoint, upgrades happen when the record is checked out, so they are published.
+    if (!authority) migrateIfNeeded(id(req));
     const loaded = store.load(id(req));
     res.json({
       ...loaded,
       evaluation: evaluate(pack, loaded.record.data),
       lease: store.leaseStatus(id(req)),
+      sharepoint: authority ? (store.remote(id(req)) ?? null) : undefined,
     });
   });
-  app.post('/api/records/:id/lease', (req, res) => {
-    store.load(id(req));
+  app.post('/api/records/:id/lease', async (req, res) => {
+    if (authority) {
+      const held = await service.checkOutRemote(id(req), holder(req));
+      if (held) return res.json(held);
+      try {
+        store.load(id(req));
+        migrateIfNeeded(id(req));
+      } catch (error) {
+        await service.finishRemote(id(req));
+        throw error;
+      }
+    } else store.load(id(req));
     const lease = store.acquire(id(req), actor(req));
+    if (!('leaseToken' in lease)) await service.finishRemote(id(req));
     changed();
     res.json(lease);
   });
-  app.post('/api/records/:id/lease/renew', (req, res) =>
-    res.json(
-      store.renew(
-        id(req),
-        z.object({ leaseToken: z.string().uuid() }).parse(req.body).leaseToken,
-        actor(req),
-      ),
-    ),
-  );
-  app.post('/api/records/:id/lease/release', (req, res) => {
+  app.post('/api/records/:id/lease/renew', async (req, res) => {
+    const lease = store.renew(
+      id(req),
+      z.object({ leaseToken: z.string().uuid() }).parse(req.body).leaseToken,
+      actor(req),
+    );
+    const token = store.remote(id(req))?.token;
+    if (authority && token) await authority.renew(id(req), token, 'human');
+    res.json(lease);
+  });
+  app.post('/api/records/:id/lease/release', async (req, res) => {
     store.release(
       id(req),
       z.object({ leaseToken: z.string().uuid() }).parse(req.body).leaseToken,
       actor(req),
     );
+    const sharepoint = await service.finishRemote(id(req));
     changed();
-    res.json({ ok: true });
+    res.json({ ok: true, sharepoint });
   });
-  app.post('/api/records/:id/lease/break', roles('admin'), (req, res) => {
+  app.post('/api/records/:id/lease/break', roles('admin'), async (req, res) => {
     store.breakLease(
       id(req),
       actor(req),
       z.object({ reason: z.string().min(1).max(500) }).parse(req.body).reason,
     );
+    if (authority) {
+      await authority.breakLease(id(req));
+      store.setRemote(id(req), { token: null, holder_kind: null });
+    }
     changed();
     res.json({ ok: true });
   });
-  app.put('/api/records/:id', (req, res) => {
+  app.put('/api/records/:id', async (req, res) => {
     const body = editBody.parse(req.body);
-    res.json(
-      service.edit(
-        id(req),
-        body.data,
-        body.etag,
-        body.leaseToken,
-        actor(req),
-        req.user!.role,
-        body.resolveConflicts,
-      ),
+    await assertRemote(id(req));
+    const saved = service.edit(
+      id(req),
+      body.data,
+      body.etag,
+      body.leaseToken,
+      actor(req),
+      req.user!.role,
+      body.resolveConflicts,
     );
+    res.json({ ...saved, sharepoint: await service.finishRemote(id(req)) });
   });
-  app.post('/api/records/:id/playbook', (req, res) => {
+  app.post('/api/records/:id/playbook', async (req, res) => {
     const body = z.object({ code: z.string() }).parse(req.body);
-    service.applyPlaybook(id(req), body.code, actor(req));
+    await service.withRemote(authority ? [id(req)] : [], () =>
+      service.applyPlaybook(id(req), body.code, actor(req)),
+    );
     res.json({ ok: true });
   });
   app.get('/api/records/:id/bundle', (req, res) => {
@@ -310,6 +421,19 @@ export function createApp(
       .type('application/zip')
       .attachment(`${id(req)}-migration.zip`)
       .send(Buffer.from(output.bytes));
+  });
+  app.get('/api/batches/:id/cbs-export', roles('reviewer', 'admin'), async (req, res) => {
+    const { files } = service.exportBatch(id(req)),
+      zip = new JSZip(),
+      date = new Date(store.batch(id(req)).createdAt);
+    for (const [name, bytes] of Object.entries(files))
+      zip.file(name, bytes, { date, createFolders: false });
+    res
+      .type('application/zip')
+      .attachment(`${id(req)}-bank2-cbs-load.zip`)
+      .send(
+        await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', platform: 'DOS' }),
+      );
   });
   app.post('/api/batches/:id/release', roles('admin'), (req, res) =>
     res.json(service.releaseBatch(id(req), actor(req))),
@@ -336,41 +460,20 @@ export function createApp(
     changed();
     res.json({ ok: true });
   });
-  app.post('/api/records/:id/scope', roles('reviewer', 'admin'), (req, res) => {
+  app.post('/api/records/:id/scope', roles('reviewer', 'admin'), async (req, res) => {
     const { decision, reason, leaseToken } = z
-        .object({
-          decision: z.enum(['keep', 'withdraw']),
-          reason: z.string().min(1).max(500),
-          leaseToken: z.string().uuid(),
-        })
-        .parse(req.body),
-      loaded = store.load(id(req));
-    store.ownsLease(id(req), leaseToken, actor(req));
-    if (
-      ['loaded', 'reconciled', 'exported', 'amendment_pending'].includes(loaded.record.state) &&
-      decision === 'withdraw'
-    )
-      throw new PlatformError(
-        'FROZEN_RECORD',
-        'Loaded records require a bank-approved reversal workflow',
-        409,
-      );
-    loaded.record.missingFromRefresh = false;
-    if (decision === 'withdraw') loaded.record.state = 'withdrawn';
-    store.save(
-      loaded.record,
-      { ifMatch: loaded.etag, leaseToken },
-      actor(req),
-      'admin',
-      `scope_${decision}`,
-    );
-    store.trace(id(req), actor(req), 'admin', 'scope_review', { reason });
-    store.resolve(id(req));
-    store.release(id(req), leaseToken, actor(req));
-    changed();
-    res.json({ ok: true });
+      .object({
+        decision: z.enum(['keep', 'withdraw']),
+        reason: z.string().min(1).max(500),
+        leaseToken: z.string().uuid(),
+      })
+      .parse(req.body);
+    await assertRemote(id(req));
+    service.decideScope(id(req), decision, reason, leaseToken, actor(req));
+    res.json({ ok: true, sharepoint: await service.finishRemote(id(req)) });
   });
-  app.put('/api/records/:id/amendment', roles('reviewer', 'admin'), (req, res) => {
+  app.put('/api/records/:id/amendment', roles('reviewer', 'admin'), async (req, res) => {
+    await assertRemote(id(req));
     const body = editBody.parse(req.body),
       loaded = store.load(id(req));
     store.ownsLease(id(req), body.leaseToken, actor(req));
@@ -397,7 +500,7 @@ export function createApp(
     );
     store.release(id(req), body.leaseToken, actor(req));
     changed();
-    res.json(result);
+    res.json({ ...result, sharepoint: await service.finishRemote(id(req)) });
   });
   app.get('/api/records/:id/amendment.pdf', async (req, res) => {
     const record = store.load(id(req)).record;
@@ -423,56 +526,11 @@ export function createApp(
   });
   app.post('/api/records/:id/amendment', roles('reviewer', 'admin'), async (req, res) => {
     const { decision, leaseToken } = z
-        .object({ decision: z.enum(['approve', 'reject']), leaseToken: z.string().uuid() })
-        .parse(req.body),
-      loaded = store.load(id(req));
-    store.ownsLease(id(req), leaseToken, actor(req));
-    if (loaded.record.state !== 'amendment_pending' || !loaded.record.pendingData)
-      throw new PlatformError('NO_AMENDMENT', 'No amendment is pending');
-    if (loaded.record.conflicts.length)
-      throw new PlatformError(
-        'REVIEW_REQUIRED',
-        'Resolve amendment conflicts through a reviewed mapping change before approval',
-      );
-    if (decision === 'approve') {
-      const next = { ...loaded.record, data: loaded.record.pendingData };
-      if (!evaluate(pack, next.data).gates.cbs.open)
-        throw new PlatformError('GATE_CLOSED', 'Amended data must pass both gates');
-      const bundle = await renderBundle(pack, next);
-      store.db
-        .prepare('INSERT INTO cbs_receipts VALUES(?,?,?,?) ON CONFLICT(idempotency_key) DO NOTHING')
-        .run(
-          `amendment:${id(req)}:${bundle.digest}`,
-          id(req),
-          JSON.stringify(bundle.expected),
-          store.timestamp(),
-        );
-      const receipt = store.db
-        .prepare('SELECT expected FROM cbs_receipts WHERE idempotency_key=?')
-        .get(`amendment:${id(req)}:${bundle.digest}`) as any;
-      if (!same(JSON.parse(receipt.expected), bundle.expected))
-        throw new PlatformError('RECONCILIATION_MISMATCH', 'Amendment readback mismatch');
-      loaded.record.data = loaded.record.pendingData;
-      loaded.record.baseline = loaded.record.pendingBaseline ?? loaded.record.baseline;
-      loaded.record.provenance = loaded.record.pendingProvenance ?? loaded.record.provenance;
-      store.db
-        .prepare('INSERT INTO amendment_outputs VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING')
-        .run(`${id(req)}:${bundle.digest}`, id(req), bundle.bytes, bundle.digest);
-    }
-    delete loaded.record.pendingData;
-    delete loaded.record.pendingBaseline;
-    delete loaded.record.pendingProvenance;
-    loaded.record.state = 'reconciled';
-    store.save(
-      loaded.record,
-      { ifMatch: loaded.etag, leaseToken },
-      actor(req),
-      'reconcile',
-      `amendment_${decision}_simulated`,
-    );
-    store.release(id(req), leaseToken, actor(req));
-    changed();
-    res.json({ ok: true });
+      .object({ decision: z.enum(['approve', 'reject']), leaseToken: z.string().uuid() })
+      .parse(req.body);
+    await assertRemote(id(req));
+    await service.decideAmendment(id(req), decision, leaseToken, actor(req));
+    res.json({ ok: true, sharepoint: await service.finishRemote(id(req)) });
   });
   app.get('/api/trace', (req, res) => {
     const filter = z
@@ -484,17 +542,14 @@ export function createApp(
         traceId: z.string().optional(),
       })
       .parse(req.query);
-    let trace = store.traces(filter);
-    if (req.user!.role === 'operator') {
-      const owned = new Set(
-        store
-          .traces()
-          .filter((t) => t.actor.id === req.user!.id && ['edit', 'lease'].includes(t.step))
-          .map((t) => t.recordId),
-      );
-      trace = trace.filter((t) => owned.has(t.recordId));
-    }
-    res.json(trace);
+    // Operators see the trace of records they have edited or leased.
+    res.json(
+      store.traces(
+        req.user!.role === 'operator'
+          ? { ...filter, recordIds: store.recordsTouchedBy(req.user!.id) }
+          : filter,
+      ),
+    );
   });
   app.get('/api/dashboard.pdf', async (_req, res) => {
     const d = service.dashboard();
@@ -580,7 +635,8 @@ export function createApp(
           : 'The request could not be completed',
     });
   });
-  let running = false;
+  let running = false,
+    lastSync = 0;
   const timer =
     options.startWorker === false
       ? undefined
@@ -588,6 +644,12 @@ export function createApp(
           if (running) return;
           running = true;
           try {
+            // Every 15 seconds: retry unfinished SharePoint publishes and pull others' changes.
+            if (authority && Date.now() - lastSync > 15000) {
+              lastSync = Date.now();
+              await service.publishPending();
+              await service.syncFromSharePoint();
+            }
             await service.runOne();
           } catch (e) {
             console.error(
