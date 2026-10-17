@@ -1,0 +1,18 @@
+{
+  "TRAN": "Transaction account",
+  "SAVE": "Savings account",
+  "TD": "Term deposit",
+  "FX": "Foreign exchange",
+  "LOAN": "Business loan",
+  "OD": "Overdraft",
+  "CARD": "Business card",
+  "MERCHANT": "Merchant services",
+  "PAYROLL": "Payroll",
+  "BPAY": "BPAY",
+  "DIRECT": "Direct entry",
+  "TRADE": "Trade finance",
+  "GUARANTEE": "Bank guarantee",
+  "CASH": "Cash management",
+  "TRUST": "Trust account",
+  "ESCROW": "Escrow account"
+}

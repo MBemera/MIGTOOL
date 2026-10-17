@@ -1,0 +1,27 @@
+{
+  "output": "User_Create.csv",
+  "kind": "csv",
+  "gate": "cbs",
+  "row_source": "people",
+  "columns": [
+    {
+      "name": "CUSTOMER_ID",
+      "from": "$record.recordId"
+    },
+    {
+      "name": "NAME",
+      "from": "name"
+    },
+    {
+      "name": "EMAIL",
+      "from": "email"
+    },
+    {
+      "name": "ROLE",
+      "from": "role"
+    }
+  ],
+  "order_by": [
+    "CUSTOMER_ID"
+  ]
+}

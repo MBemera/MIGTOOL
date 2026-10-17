@@ -1,0 +1,29 @@
+{
+  "gates": {
+    "aaf": {
+      "block_on": [
+        "critical"
+      ],
+      "min_score": 90,
+      "unlocks": [
+        "aaf.pdf",
+        "amendment.pdf"
+      ]
+    },
+    "cbs": {
+      "requires": [
+        "aaf"
+      ],
+      "block_on": [
+        "critical",
+        "warning"
+      ],
+      "min_score": 100,
+      "unlocks": [
+        "Customer_Create.csv",
+        "Account_Register.csv",
+        "User_Create.csv"
+      ]
+    }
+  }
+}

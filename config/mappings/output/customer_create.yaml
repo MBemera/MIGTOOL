@@ -1,0 +1,27 @@
+{
+  "output": "Customer_Create.csv",
+  "kind": "csv",
+  "gate": "cbs",
+  "row_source": null,
+  "columns": [
+    {
+      "name": "CUSTOMER_ID",
+      "from": "$record.recordId"
+    },
+    {
+      "name": "LEGAL_NAME",
+      "from": "entity.legalName"
+    },
+    {
+      "name": "ABN",
+      "from": "entity.abn"
+    },
+    {
+      "name": "POSTCODE",
+      "from": "address.postcode"
+    }
+  ],
+  "order_by": [
+    "CUSTOMER_ID"
+  ]
+}

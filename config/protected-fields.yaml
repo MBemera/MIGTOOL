@@ -1,0 +1,11 @@
+{
+  "protected": [
+    "entity.abn",
+    "entity.tfn",
+    "accounts[*].accountNumber",
+    "accounts[*].bsb",
+    "accounts[*].limits",
+    "signatories[*].authorityLimit",
+    "signatories[*].identityReference"
+  ]
+}

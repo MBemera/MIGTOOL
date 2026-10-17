@@ -1,0 +1,616 @@
+{
+  "version": "aaf-v73.1-demo",
+  "pages": [
+    {
+      "id": "entity",
+      "title": "Entity details",
+      "sections": [
+        {
+          "id": "entity.core",
+          "title": "Entity identification",
+          "fields": [
+            {
+              "path": "entity.legalName",
+              "label": "Legal name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "entity.type",
+              "label": "Entity type",
+              "type": "select",
+              "required": true,
+              "options": "lookup:entityTypes"
+            },
+            {
+              "path": "entity.abn",
+              "label": "ABN",
+              "type": "text",
+              "required": true,
+              "widget": "abn"
+            },
+            {
+              "path": "entity.email",
+              "label": "Contact email",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "id": "address.core",
+          "title": "Registered address",
+          "fields": [
+            {
+              "path": "address.line1",
+              "label": "Street address",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "address.suburb",
+              "label": "Suburb",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "address.state",
+              "label": "State / territory",
+              "type": "select",
+              "required": true,
+              "options": "lookup:states"
+            },
+            {
+              "path": "address.postcode",
+              "label": "Postcode",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "address.country",
+              "label": "Country",
+              "type": "select",
+              "required": true,
+              "options": "lookup:countries"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tax",
+      "title": "Tax declarations",
+      "sections": [
+        {
+          "id": "tax.core",
+          "title": "Customer-supplied declarations",
+          "fields": [
+            {
+              "path": "tax.residency",
+              "label": "Tax residency",
+              "type": "select",
+              "required": true,
+              "options": "lookup:countries"
+            },
+            {
+              "path": "tax.foreignTax",
+              "label": "Foreign tax resident",
+              "type": "boolean"
+            },
+            {
+              "path": "tax.foreignTin",
+              "label": "Foreign tax identifier",
+              "type": "text",
+              "visibleWhen": "tax.foreignTax = true",
+              "requiredWhen": "tax.foreignTax = true",
+              "declaredBy": "customer"
+            },
+            {
+              "path": "tax.declaration",
+              "label": "Declaration evidence reference",
+              "type": "document-ref",
+              "required": true,
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "accounts",
+      "title": "Accounts",
+      "sections": [
+        {
+          "id": "accounts.list",
+          "title": "Account registration",
+          "fields": [
+            {
+              "path": "productCode",
+              "label": "Product",
+              "type": "select",
+              "required": true,
+              "options": "lookup:products"
+            },
+            {
+              "path": "accountNumber",
+              "label": "Source account number",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "bsb",
+              "label": "BSB",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "openDate",
+              "label": "Opening date",
+              "type": "date",
+              "required": true
+            }
+          ],
+          "collection": {
+            "path": "accounts",
+            "min": 1,
+            "max": 30
+          }
+        }
+      ]
+    },
+    {
+      "id": "people",
+      "title": "People",
+      "sections": [
+        {
+          "id": "people.list",
+          "title": "Associated people",
+          "fields": [
+            {
+              "path": "name",
+              "label": "Full name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "email",
+              "label": "Email",
+              "type": "text"
+            },
+            {
+              "path": "role",
+              "label": "Relationship",
+              "type": "select",
+              "options": "lookup:relationships",
+              "required": true
+            }
+          ],
+          "collection": {
+            "path": "people",
+            "min": 1,
+            "max": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "signatories",
+      "title": "Signatories",
+      "sections": [
+        {
+          "id": "signatories.list",
+          "title": "Signing authority",
+          "fields": [
+            {
+              "path": "name",
+              "label": "Full name",
+              "type": "text",
+              "required": true
+            },
+            {
+              "path": "identityReference",
+              "label": "Verified identity evidence",
+              "type": "document-ref",
+              "required": true,
+              "declaredBy": "customer"
+            },
+            {
+              "path": "authorityLimit",
+              "label": "Authority limit (AUD)",
+              "type": "currency",
+              "visibleWhen": "entity.type = 'company'"
+            }
+          ],
+          "collection": {
+            "path": "signatories",
+            "min": 1,
+            "max": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "product.TRAN",
+      "title": "Transaction account",
+      "enabledWhen": "'TRAN' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.TRAN",
+          "title": "Transaction account configuration",
+          "fields": [
+            {
+              "path": "products.TRAN.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.TRAN.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.SAVE",
+      "title": "Savings account",
+      "enabledWhen": "'SAVE' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.SAVE",
+          "title": "Savings account configuration",
+          "fields": [
+            {
+              "path": "products.SAVE.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.SAVE.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.TD",
+      "title": "Term deposit",
+      "enabledWhen": "'TD' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.TD",
+          "title": "Term deposit configuration",
+          "fields": [
+            {
+              "path": "products.TD.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.TD.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.FX",
+      "title": "Foreign exchange",
+      "enabledWhen": "'FX' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.FX",
+          "title": "Foreign exchange configuration",
+          "fields": [
+            {
+              "path": "products.FX.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.FX.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.LOAN",
+      "title": "Business loan",
+      "enabledWhen": "'LOAN' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.LOAN",
+          "title": "Business loan configuration",
+          "fields": [
+            {
+              "path": "products.LOAN.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.LOAN.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.OD",
+      "title": "Overdraft",
+      "enabledWhen": "'OD' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.OD",
+          "title": "Overdraft configuration",
+          "fields": [
+            {
+              "path": "products.OD.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.OD.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.CARD",
+      "title": "Business card",
+      "enabledWhen": "'CARD' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.CARD",
+          "title": "Business card configuration",
+          "fields": [
+            {
+              "path": "products.CARD.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.CARD.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.MERCHANT",
+      "title": "Merchant services",
+      "enabledWhen": "'MERCHANT' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.MERCHANT",
+          "title": "Merchant services configuration",
+          "fields": [
+            {
+              "path": "products.MERCHANT.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.MERCHANT.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.PAYROLL",
+      "title": "Payroll",
+      "enabledWhen": "'PAYROLL' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.PAYROLL",
+          "title": "Payroll configuration",
+          "fields": [
+            {
+              "path": "products.PAYROLL.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.PAYROLL.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.BPAY",
+      "title": "BPAY",
+      "enabledWhen": "'BPAY' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.BPAY",
+          "title": "BPAY configuration",
+          "fields": [
+            {
+              "path": "products.BPAY.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.BPAY.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.DIRECT",
+      "title": "Direct entry",
+      "enabledWhen": "'DIRECT' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.DIRECT",
+          "title": "Direct entry configuration",
+          "fields": [
+            {
+              "path": "products.DIRECT.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.DIRECT.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.TRADE",
+      "title": "Trade finance",
+      "enabledWhen": "'TRADE' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.TRADE",
+          "title": "Trade finance configuration",
+          "fields": [
+            {
+              "path": "products.TRADE.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.TRADE.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.GUARANTEE",
+      "title": "Bank guarantee",
+      "enabledWhen": "'GUARANTEE' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.GUARANTEE",
+          "title": "Bank guarantee configuration",
+          "fields": [
+            {
+              "path": "products.GUARANTEE.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.GUARANTEE.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.CASH",
+      "title": "Cash management",
+      "enabledWhen": "'CASH' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.CASH",
+          "title": "Cash management configuration",
+          "fields": [
+            {
+              "path": "products.CASH.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.CASH.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.TRUST",
+      "title": "Trust account",
+      "enabledWhen": "'TRUST' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.TRUST",
+          "title": "Trust account configuration",
+          "fields": [
+            {
+              "path": "products.TRUST.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.TRUST.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product.ESCROW",
+      "title": "Escrow account",
+      "enabledWhen": "'ESCROW' in accounts.productCode",
+      "sections": [
+        {
+          "id": "product.ESCROW",
+          "title": "Escrow account configuration",
+          "fields": [
+            {
+              "path": "products.ESCROW.instructions",
+              "label": "Product instructions",
+              "type": "text"
+            },
+            {
+              "path": "products.ESCROW.reference",
+              "label": "Customer instruction reference",
+              "type": "document-ref",
+              "declaredBy": "customer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

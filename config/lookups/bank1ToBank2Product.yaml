@@ -1,0 +1,18 @@
+{
+  "TRAN": "TRAN",
+  "SAVE": "SAVE",
+  "TD": "TD",
+  "FX": "FX",
+  "LOAN": "LOAN",
+  "OD": "OD",
+  "CARD": "CARD",
+  "MERCHANT": "MERCHANT",
+  "PAYROLL": "PAYROLL",
+  "BPAY": "BPAY",
+  "DIRECT": "DIRECT",
+  "TRADE": "TRADE",
+  "GUARANTEE": "GUARANTEE",
+  "CASH": "CASH",
+  "TRUST": "TRUST",
+  "ESCROW": "ESCROW"
+}
